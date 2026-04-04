@@ -1,0 +1,485 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../services/storage_service.dart';
+
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  int _activeTab = 1; // 1: Device Setup, 2: RV Setup
+
+  late int _unit;
+  late int _tempUnit;
+  late int _orientation;
+  late int _carType;
+  late TextEditingController _widthController;
+  late TextEditingController _heightController;
+
+  @override
+  void initState() {
+    super.initState();
+    final storage = Provider.of<StorageService>(context, listen: false);
+    _unit = storage.unit;
+    _tempUnit = storage.tempUnit;
+    _orientation = storage.orientation;
+    _carType = storage.carType;
+    _widthController = TextEditingController(text: storage.width.toString());
+    _heightController = TextEditingController(text: storage.height.toString());
+  }
+
+  @override
+  void dispose() {
+    _widthController.dispose();
+    _heightController.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    final storage = Provider.of<StorageService>(context, listen: false);
+    storage.unit = _unit;
+    storage.tempUnit = _tempUnit;
+    storage.orientation = _orientation;
+    storage.carType = _carType;
+    storage.width = double.tryParse(_widthController.text) ?? storage.width;
+    storage.height = double.tryParse(_heightController.text) ?? storage.height;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Saved successfully'), duration: Duration(seconds: 2)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Image.asset('assets/images/roback.png', width: 30),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text('Settings', style: TextStyle(color: Color(0xFF8F8F8F), fontWeight: FontWeight.bold)),
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          const SizedBox(height: 10),
+          // Tab Switcher
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Container(
+              height: 38,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFDEFD0),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _TabButton(
+                      text: 'Device Setup',
+                      isActive: _activeTab == 1,
+                      onPressed: () => setState(() => _activeTab = 1),
+                    ),
+                  ),
+                  Expanded(
+                    child: _TabButton(
+                      text: 'RV Setup',
+                      isActive: _activeTab == 2,
+                      onPressed: () => setState(() => _activeTab = 2),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: _activeTab == 1 ? _buildDeviceSetup() : _buildRvSetup(),
+              ),
+            ),
+          ),
+          // Save Bar
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFFDC8F09),
+                      side: const BorderSide(color: Color(0xFFC5B7A5)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text('Reset', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _save,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF7A52E),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text('Save', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeviceSetup() {
+    return Column(
+      children: [
+        _buildSection(
+          title: 'Measurement Units',
+          child: Row(
+            children: [
+              Expanded(child: _ToggleButton(text: 'Inches', isActive: _unit == 2, onPressed: () => setState(() => _unit = 2))),
+              const SizedBox(width: 10),
+              Expanded(child: _ToggleButton(text: 'Centimeters', isActive: _unit == 1, onPressed: () => setState(() => _unit = 1))),
+            ],
+          ),
+        ),
+        _buildSection(
+          title: 'Temperature Units',
+          child: Row(
+            children: [
+              Expanded(child: _ToggleButton(text: 'Fahrenheit', isActive: _tempUnit == 2, onPressed: () => setState(() => _tempUnit = 2))),
+              const SizedBox(width: 10),
+              Expanded(child: _ToggleButton(text: 'Celsius', isActive: _tempUnit == 1, onPressed: () => setState(() => _tempUnit = 1))),
+            ],
+          ),
+        ),
+        _buildSection(
+          title: 'Set Level',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Level your RV using your traditional leveling method.', style: TextStyle(fontSize: 12)),
+              const SizedBox(height: 10),
+              const Text('If your vehicle has power slideout rooms, the vehicle should be leveled with the slides out.', style: TextStyle(fontSize: 12)),
+              const SizedBox(height: 20),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    setState(() => _activeTab = 2);
+                  }, // Calibration trigger
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFE49D00)),
+                  child: const Text('Set Level', style: TextStyle(color: Colors.white)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        _buildSection(
+          title: 'Set Installation Orientation',
+          child: Center(
+            child: SizedBox(
+              width: 340,
+              height: 380,
+              child: Stack(
+                alignment: Alignment.topCenter, // The original HTML elements depend on exact top/left positioning within a 340w bounded div
+                children: [
+                  Positioned(
+                    top: 60, // Pushed down to clear 'Logo Faces Rear'
+                    child: Container(
+                      color: Colors.transparent, // Opaque background to prevent text bleed
+                      child: Image.asset('assets/images/fushitu.jpg', width: 140),
+                    ),
+                  ),
+                  Positioned(
+                    top: 10, // Top of the stack
+                    child: _OrientationButton(width: 180, height: 36, text: 'Logo Faces Rear', isActive: _orientation == 1, onPressed: () => setState(() => _orientation = 1))
+                  ),
+                  Positioned(
+                    bottom: 20,
+                    child: _OrientationButton(width: 180, height: 36, text: 'Logo Faces Front', isActive: _orientation == 2, onPressed: () => setState(() => _orientation = 2))
+                  ),
+                  Positioned(
+                    left: 20,
+                    bottom: 60, // Slightly adjusted
+                    child: _OrientationButton(width: 40, height: 220, text: "Logo Face Passenger's Side", isActive: _orientation == 3, onPressed: () => setState(() => _orientation = 3), isVertical: true)
+                  ),
+                  Positioned(
+                    right: 20,
+                    bottom: 60, // Slightly adjusted
+                    child: _OrientationButton(width: 40, height: 220, text: "Logo Face Driver's Side", isActive: _orientation == 4, onPressed: () => setState(() => _orientation = 4), isVertical: true)
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRvSetup() {
+    return Column(
+      children: [
+        _buildSection(
+          title: 'Select Your RV Type:',
+          child: Column(
+            children: List.generate(5, (index) {
+              int type = index + 1;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10.0),
+                child: _CarModeRow(
+                  type: type,
+                  name: _getCarName(type),
+                  isActive: _carType == type,
+                  onPressed: () => setState(() => _carType = type),
+                ),
+              );
+            }),
+          ),
+        ),
+        _buildSection(
+          title: 'Trailer Width',
+          child: Column(
+            children: [
+              Image.asset('assets/images/car4w.png', height: 150),
+              const Text('Measure the width on the outside of each tire', style: TextStyle(fontSize: 14)),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 120,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: TextField(
+                      controller: _widthController,
+                      textAlign: TextAlign.center,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF555555)),
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(vertical: 8),
+                        border: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFCCCCCC))),
+                        focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFF7A52E))),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(_unit == 1 ? 'CM' : 'Inches', style: const TextStyle(color: Color(0xFF8F8F8F), fontWeight: FontWeight.bold)),
+                ],
+              ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        _buildSection(
+          title: 'Trailer Length',
+          child: Column(
+            children: [
+               Image.asset('assets/images/car4h.png', height: 150),
+               const Text('Measure distance from center of rear wheel to jack point.', style: TextStyle(fontSize: 14)),
+               const SizedBox(height: 10),
+               Row(
+                 mainAxisAlignment: MainAxisAlignment.center,
+                 children: [
+               Row(
+                 mainAxisAlignment: MainAxisAlignment.center,
+                 children: [
+                   Container(
+                     width: 120,
+                     height: 36,
+                     decoration: BoxDecoration(
+                       color: Colors.white,
+                       borderRadius: BorderRadius.circular(4),
+                     ),
+                     child: TextField(
+                       controller: _heightController,
+                       textAlign: TextAlign.center,
+                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF555555)),
+                       decoration: const InputDecoration(
+                         contentPadding: EdgeInsets.symmetric(vertical: 8),
+                         border: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFCCCCCC))),
+                         focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFF7A52E))),
+                       ),
+                     ),
+                   ),
+                   const SizedBox(width: 8),
+                   Text(_unit == 1 ? 'CM' : 'Inches', style: const TextStyle(color: Color(0xFF8F8F8F), fontWeight: FontWeight.bold)),
+                 ],
+               ),
+                 ],
+               ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSection({required String title, required Widget child}) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0EEF1),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          child,
+        ],
+      ),
+    );
+  }
+
+  String _getCarName(int type) {
+    switch (type) {
+      case 1: return 'Class A';
+      case 2: return 'Class B/C';
+      case 3: return 'Travel Trailer';
+      case 4: return 'Fifth Wheel';
+      case 5: return 'Hybrid/Pop-UP';
+      default: return '';
+    }
+  }
+}
+
+class _TabButton extends StatelessWidget {
+  final String text;
+  final bool isActive;
+  final VoidCallback onPressed;
+  const _TabButton({required this.text, required this.isActive, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onPressed,
+      child: Container(
+        decoration: BoxDecoration(
+          color: isActive ? const Color(0xFFF7A52E) : Colors.transparent,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          text,
+          style: TextStyle(
+            color: isActive ? Colors.white : const Color(0xFF8F8F8F),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ToggleButton extends StatelessWidget {
+  final String text;
+  final bool isActive;
+  final VoidCallback onPressed;
+  const _ToggleButton({required this.text, required this.isActive, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isActive ? const Color(0xFFF7A52E) : const Color(0xFFFDEFD0),
+        foregroundColor: isActive ? Colors.white : const Color(0xFF8F8F8F),
+        elevation: 0,
+      ),
+      child: Text(text),
+    );
+  }
+}
+
+class _OrientationButton extends StatelessWidget {
+  final String text;
+  final bool isActive;
+  final VoidCallback onPressed;
+  final bool isVertical;
+  final double? width;
+  final double? height;
+  const _OrientationButton({required this.text, required this.isActive, required this.onPressed, this.isVertical = false, this.width, this.height});
+
+  @override
+  Widget build(BuildContext context) {
+    Widget content = Text(text, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold));
+    if (isVertical) {
+      content = RotatedBox(quarterTurns: 1, child: content);
+    }
+
+    return InkWell(
+      onTap: onPressed,
+      child: Container(
+        width: width,
+        height: height,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+        decoration: BoxDecoration(
+          color: isActive ? Colors.black : const Color(0xFFFFE9D2),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: DefaultTextStyle(
+          style: TextStyle(color: isActive ? const Color(0xFFFDEFD0) : const Color(0xFF8F8F8F)),
+          child: content,
+        ),
+      ),
+    );
+  }
+}
+
+class _CarModeRow extends StatelessWidget {
+  final int type;
+  final String name;
+  final bool isActive;
+  final VoidCallback onPressed;
+  const _CarModeRow({required this.type, required this.name, required this.isActive, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onPressed,
+      child: Container(
+        height: 70,
+        decoration: BoxDecoration(
+          color: const Color(0x7FDAD6DB),
+          borderRadius: BorderRadius.circular(4),
+          border: isActive ? Border.all(color: Colors.green, width: 2) : null,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Row(
+          children: [
+            Image.asset('assets/images/car$type.png', width: 100, height: 60),
+            const SizedBox(width: 10),
+            Expanded(child: Text(name, style: TextStyle(fontWeight: FontWeight.bold, color: isActive ? Colors.green : Colors.grey[700]))),
+            if (isActive) Image.asset('assets/images/selecteds.png', width: 24),
+          ],
+        ),
+      ),
+    );
+  }
+}
