@@ -19,6 +19,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late TextEditingController _widthController;
   late TextEditingController _heightController;
 
+  final GlobalKey _trailerWidthKey = GlobalKey();
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +38,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void dispose() {
     _widthController.dispose();
     _heightController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -49,6 +53,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Saved successfully'), duration: Duration(seconds: 2)),
+    );
+  }
+
+  void _scrollToTrailerWidth() async {
+    // 如果当前不在 RV Setup 选项卡，先切换
+    if (_activeTab != 2) {
+      setState(() {
+        _activeTab = 2;
+      });
+      // 等待视图构建完成
+      await WidgetsBinding.instance.endOfFrame;
+    }
+
+    // 等待一帧确保布局完成
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _performScroll();
+    });
+  }
+
+  void _performScroll() {
+    final RenderBox? renderBox = _trailerWidthKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) {
+      // 若未找到，延迟重试一次
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) _performScroll();
+      });
+      return;
+    }
+
+    final offset = renderBox.localToGlobal(Offset.zero);
+    // 减去 AppBar 和 Tab 栏的高度（可根据实际情况调整）
+    final double appBarHeight = kToolbarHeight + 10 + 38 + 10; // AppBar + 间距 + Tab容器 + 间距
+    final targetOffset = offset.dy - appBarHeight;
+
+    _scrollController.animateTo(
+      targetOffset.clamp(0.0, _scrollController.position.maxScrollExtent),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
     );
   }
 
@@ -101,6 +143,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 10),
           Expanded(
             child: SingleChildScrollView(
+              controller: _scrollController,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: _activeTab == 1 ? _buildDeviceSetup() : _buildRvSetup(),
@@ -177,9 +220,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 20),
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
-                    setState(() => _activeTab = 2);
-                  }, // Calibration trigger
+                  onPressed: _scrollToTrailerWidth,
                   style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFE49D00)),
                   child: const Text('Set Level', style: TextStyle(color: Colors.white)),
                 ),
@@ -194,32 +235,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
               width: 340,
               height: 380,
               child: Stack(
-                alignment: Alignment.topCenter, // The original HTML elements depend on exact top/left positioning within a 340w bounded div
+                alignment: Alignment.topCenter,
                 children: [
                   Positioned(
-                    top: 60, // Pushed down to clear 'Logo Faces Rear'
+                    top: 60,
                     child: Container(
-                      color: Colors.transparent, // Opaque background to prevent text bleed
+                      color: Colors.transparent,
                       child: Image.asset('assets/images/fushitu.jpg', width: 140),
                     ),
                   ),
                   Positioned(
-                    top: 10, // Top of the stack
-                    child: _OrientationButton(width: 180, height: 36, text: 'Logo Faces Rear', isActive: _orientation == 1, onPressed: () => setState(() => _orientation = 1))
+                      top: 10,
+                      child: _OrientationButton(width: 180, height: 36, text: 'Logo Faces Rear', isActive: _orientation == 1, onPressed: () => setState(() => _orientation = 1))
                   ),
                   Positioned(
-                    bottom: 20,
-                    child: _OrientationButton(width: 180, height: 36, text: 'Logo Faces Front', isActive: _orientation == 2, onPressed: () => setState(() => _orientation = 2))
+                      bottom: 20,
+                      child: _OrientationButton(width: 180, height: 36, text: 'Logo Faces Front', isActive: _orientation == 2, onPressed: () => setState(() => _orientation = 2))
                   ),
                   Positioned(
-                    left: 20,
-                    bottom: 60, // Slightly adjusted
-                    child: _OrientationButton(width: 40, height: 220, text: "Logo Face Passenger's Side", isActive: _orientation == 3, onPressed: () => setState(() => _orientation = 3), isVertical: true)
+                      left: 20,
+                      bottom: 60,
+                      child: _OrientationButton(width: 40, height: 220, text: "Logo Face Passenger's Side", isActive: _orientation == 3, onPressed: () => setState(() => _orientation = 3), isVertical: true)
                   ),
                   Positioned(
-                    right: 20,
-                    bottom: 60, // Slightly adjusted
-                    child: _OrientationButton(width: 40, height: 220, text: "Logo Face Driver's Side", isActive: _orientation == 4, onPressed: () => setState(() => _orientation = 4), isVertical: true)
+                      right: 20,
+                      bottom: 60,
+                      child: _OrientationButton(width: 40, height: 220, text: "Logo Face Driver's Side", isActive: _orientation == 4, onPressed: () => setState(() => _orientation = 4), isVertical: true)
                   ),
                 ],
               ),
@@ -250,85 +291,88 @@ class _SettingsScreenState extends State<SettingsScreen> {
             }),
           ),
         ),
-        _buildSection(
-          title: 'Trailer Width',
-          child: Column(
-            children: [
-              Image.asset('assets/images/car4w.png', height: 150),
-              const Text('Measure the width on the outside of each tire', style: TextStyle(fontSize: 14)),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 120,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
+        Container(
+          key: _trailerWidthKey,
+          child: _buildSection(
+            title: 'Trailer Width',
+            child: Column(
+              children: [
+                Image.asset('assets/images/car4w.png', height: 150),
+                const Text('Measure the width on the outside of each tire', style: TextStyle(fontSize: 16)),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 120,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: TextField(
+                            controller: _widthController,
+                            textAlign: TextAlign.center,
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF555555)),
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(vertical: 8),
+                              border: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFCCCCCC))),
+                              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFF7A52E))),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(_unit == 1 ? 'CM' : 'Inches', style: const TextStyle(color: Color(0xFF8F8F8F), fontWeight: FontWeight.bold)),
+                      ],
                     ),
-                    child: TextField(
-                      controller: _widthController,
-                      textAlign: TextAlign.center,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF555555)),
-                      decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(vertical: 8),
-                        border: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFCCCCCC))),
-                        focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFF7A52E))),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(_unit == 1 ? 'CM' : 'Inches', style: const TextStyle(color: Color(0xFF8F8F8F), fontWeight: FontWeight.bold)),
-                ],
-              ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
         _buildSection(
           title: 'Trailer Length',
           child: Column(
             children: [
-               Image.asset('assets/images/car4h.png', height: 150),
-               const Text('Measure distance from center of rear wheel to jack point.', style: TextStyle(fontSize: 14)),
-               const SizedBox(height: 10),
-               Row(
-                 mainAxisAlignment: MainAxisAlignment.center,
-                 children: [
-               Row(
-                 mainAxisAlignment: MainAxisAlignment.center,
-                 children: [
-                   Container(
-                     width: 120,
-                     height: 36,
-                     decoration: BoxDecoration(
-                       color: Colors.white,
-                       borderRadius: BorderRadius.circular(4),
-                     ),
-                     child: TextField(
-                       controller: _heightController,
-                       textAlign: TextAlign.center,
-                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF555555)),
-                       decoration: const InputDecoration(
-                         contentPadding: EdgeInsets.symmetric(vertical: 8),
-                         border: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFCCCCCC))),
-                         focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFF7A52E))),
-                       ),
-                     ),
-                   ),
-                   const SizedBox(width: 8),
-                   Text(_unit == 1 ? 'CM' : 'Inches', style: const TextStyle(color: Color(0xFF8F8F8F), fontWeight: FontWeight.bold)),
-                 ],
-               ),
-                 ],
-               ),
+              Image.asset('assets/images/car4h.png', height: 150),
+              const Text('Measure the distance from the center of the rear wheel to the jack point, or to the center pf the front wheel if it is a drivable RV', style: TextStyle(fontSize: 16)),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 120,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: TextField(
+                          controller: _heightController,
+                          textAlign: TextAlign.center,
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF555555)),
+                          decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(vertical: 8),
+                            border: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFCCCCCC))),
+                            focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFF7A52E))),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(_unit == 1 ? 'CM' : 'Inches', style: const TextStyle(color: Color(0xFF8F8F8F), fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
         ),
