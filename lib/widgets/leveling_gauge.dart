@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class LevelingGauge extends StatelessWidget {
@@ -30,50 +31,54 @@ class LevelingGauge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-      builder: (context, constraints) {
-        final double availableWidth = constraints.maxWidth;
-        final double availableHeight = constraints.maxHeight;
-        
-        // Determine which car image to use
-        String carImage;
-        if (viewMode == 1) {
-          carImage = 'assets/images/car${carType}h.png';
-        } else {
-          carImage = 'assets/images/car${carType}w.png';
-        }
+        builder: (context, constraints) {
+          final double availableWidth = constraints.maxWidth;
+          final double availableHeight = constraints.maxHeight;
 
-        if (viewMode == 3) {
-          return _buildBirdsEyeView(availableWidth, availableHeight);
-        }
+          // Determine which car image to use
+          String carImage;
+          if (viewMode == 1) {
+            carImage = 'assets/images/car${carType}h.png';
+          } else {
+            carImage = 'assets/images/car${carType}w.png';
+          }
 
-        return Stack(
-          alignment: Alignment.center,
-          children: [
-            // The Lever/Pointer (Triangle)
-            Transform.rotate(
-              angle: angle * 3.14159 / 180,
-              child: Container(
-                height: availableHeight * 0.9,
-                width: 20,
-                alignment: Alignment.topCenter,
-                child: CustomPaint(
-                  size: const Size(20, 20),
-                  painter: TrianglePainter(color: const Color(0xFF343434)),
+          if (viewMode == 3) {
+            return _buildBirdsEyeView(availableWidth, availableHeight);
+          }
+
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              // 优化：使用 easeOutBack 曲线实现弹性回弹效果，并适当延长动画时间让弹性可见
+              AnimatedRotation(
+                turns: angle / 360.0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutBack, // 让指针冲过头一点点再弹回来
+                child: Container(
+                  height: availableHeight * 0.9,
+                  width: 20,
+                  alignment: Alignment.topCenter,
+                  child: CustomPaint(
+                    size: const Size(20, 20),
+                    painter: TrianglePainter(color: const Color(0xFF343434)),
+                  ),
                 ),
               ),
-            ),
-            // The Car Image
-            Transform.rotate(
-              angle: (angle / 2.0) * 3.14159 / 180, // Half rotation as in original JS
-              child: Image.asset(
-                carImage,
-                width: availableWidth * 0.8,
-                fit: BoxFit.contain,
+              // 让车身也保持同样的弹性物理反馈
+              AnimatedRotation(
+                turns: (angle / 2.0) / 360.0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutBack,
+                child: Image.asset(
+                  carImage,
+                  width: availableWidth * 0.8,
+                  fit: BoxFit.contain,
+                ),
               ),
-            ),
-          ],
-        );
-      }
+            ],
+          );
+        }
     );
   }
 
@@ -89,9 +94,7 @@ class LevelingGauge extends StatelessWidget {
       t8 = thresholds['zs8'] ?? 0;
       t24 = thresholds['zs24'] ?? 0;
     }
-    
-    // JS used fixed thresholds for colors in some places, but also used calculated ones.
-    // We stick to the calculated high-difference thresholds to match the original logic.
+
     if (val <= t8) return const Color(0xFF9CDA1E);
     if (val <= t24) return const Color(0xFFECDC05);
     return const Color(0xFFFB2A37);
@@ -144,9 +147,16 @@ class _WheelValue extends StatelessWidget {
       right: right,
       child: Column(
         children: [
-          Text(
-            "${value.toStringAsFixed(2)}$unit",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color),
+          AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 100),
+            curve: Curves.linear,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: color,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+            child: Text("${value.toStringAsFixed(2)}$unit"),
           ),
           Container(height: 2, width: 50, color: Colors.red),
         ],

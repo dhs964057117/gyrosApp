@@ -103,10 +103,7 @@ class _HomeScreenState extends State<HomeScreen>
             animation: _drawerController,
             builder: (context, child) {
               double slide = drawerWidth * _drawerController.value;
-              double scale =
-                  1.0 -
-                      (_drawerController.value *
-                          0.05); // Subtle scale for depth
+              double scale = 1.0 - (_drawerController.value * 0.05);
 
               return Transform(
                 transform: Matrix4.identity()
@@ -234,10 +231,7 @@ class _HomeScreenState extends State<HomeScreen>
                 const SizedBox(height: 30),
                 // Gauge Box
                 Container(
-                  height: MediaQuery
-                      .of(context)
-                      .size
-                      .height * 0.6,
+                  height: MediaQuery.of(context).size.height * 0.6,
                   decoration: BoxDecoration(
                     color: const Color(0x66DAD6DB),
                     borderRadius: BorderRadius.circular(4),
@@ -253,6 +247,8 @@ class _HomeScreenState extends State<HomeScreen>
                           child: Image.asset(
                             _getLevelerImage(currentAngle),
                             width: 240,
+                            // gaplessPlayback 是核心：它能在新图片加载好之前保留旧图片，从而杜绝切换时的闪烁白屏
+                            gaplessPlayback: true,
                           ),
                         ),
                       ),
@@ -262,18 +258,28 @@ class _HomeScreenState extends State<HomeScreen>
                         left: 0,
                         right: 0,
                         child: Center(
-                          child: Text(
-                            _getDifferenceText(orientation, storage, _viewMode),
+                          child: AnimatedDefaultTextStyle(
+                            duration: const Duration(milliseconds: 100),
+                            curve: Curves.linear,
                             style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
                               color: _getGaugeColor(currentAngle),
+                              fontFeatures: const [FontFeature.tabularFigures()],
+                            ),
+                            child: Text(
+                              _getDifferenceText(orientation, storage, _viewMode),
                             ),
                           ),
                         ),
                       ),
                       // Main LevelingGauge Animation
-                      Center(
+                      // 重点优化：整体向下偏移（top: 75），让指针正好1/3刺入圆弧，剩下2/3在圆弧下方
+                      Positioned(
+                        top: 15,
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
                         child: LevelingGauge(
                           angle: clampedAngle,
                           carType: storage.carType,
