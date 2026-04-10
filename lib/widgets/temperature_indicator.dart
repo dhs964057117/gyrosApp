@@ -18,7 +18,7 @@ class TemperatureIndicator extends StatelessWidget {
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         const SizedBox(width: 8),
-        Image.asset('assets/images/center/wenduji.png', height: 26),
+        Image.asset('assets/images/center/wenduji.webp', height: 26),
       ],
     );
   }

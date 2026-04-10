@@ -80,7 +80,7 @@ class _UserManualScreenState extends State<UserManualScreen> {
         children: [
           Expanded(
             child: Image.asset(
-              'assets/images/guide/guide$index.jpg',
+              'assets/images/guide/guide$index.webp',
               fit: BoxFit.contain,
               errorBuilder: (context, error, stackTrace) => const Center(
                 child: Icon(Icons.error_outline, color: Colors.red),

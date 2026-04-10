@@ -38,9 +38,9 @@ class LevelingGauge extends StatelessWidget {
           // Determine which car image to use
           String carImage;
           if (viewMode == 1) {
-            carImage = 'assets/images/car${carType}h.png';
+            carImage = 'assets/images/car${carType}h.webp';
           } else {
-            carImage = 'assets/images/car${carType}w.png';
+            carImage = 'assets/images/car${carType}w.webp';
           }
 
           if (viewMode == 3) {
@@ -101,7 +101,7 @@ class LevelingGauge extends StatelessWidget {
   }
 
   Widget _buildBirdsEyeView(double width, double height) {
-    String carImage = 'assets/images/car${carType}f.png';
+    String carImage = 'assets/images/car${carType}f.webp';
     String unitStr = unit == 1 ? 'cm' : '"';
 
     return Stack(

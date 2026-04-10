@@ -214,7 +214,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
                               ),
                             ),
                             Image.asset(
-                              'assets/images/device/device-ico.png',
+                              'assets/images/device/device-ico.webp',
                               height: 46,
                             ),
                             const SizedBox(width: 15),
@@ -251,7 +251,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/success.png', width: 90),
+            Image.asset('assets/images/success.webp', width: 90),
             const SizedBox(height: 20),
             const Text(
               'Connected!',
@@ -262,7 +262,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
               ),
             ),
             const SizedBox(height: 40),
-            Image.asset('assets/images/device/device-ico.png', width: 240),
+            Image.asset('assets/images/device/device-ico.webp', width: 240),
             const SizedBox(height: 20),
             Text(
               _connectedDeviceName ?? '',

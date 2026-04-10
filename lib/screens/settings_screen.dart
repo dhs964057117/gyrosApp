@@ -102,7 +102,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Image.asset('assets/images/roback.png', width: 30),
+          icon: Image.asset('assets/images/roback.webp', width: 30),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text('Settings', style: TextStyle(color: Color(0xFF8F8F8F), fontWeight: FontWeight.bold)),
@@ -241,7 +241,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     top: 60,
                     child: Container(
                       color: Colors.transparent,
-                      child: Image.asset('assets/images/fushitu.jpg', width: 140),
+                      child: Image.asset('assets/images/fushitu.webp', width: 140),
                     ),
                   ),
                   Positioned(
@@ -297,7 +297,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Trailer Width',
             child: Column(
               children: [
-                Image.asset('assets/images/car4w.png', height: 150),
+                Image.asset('assets/images/car4w.webp', height: 150),
                 const Text('Measure the width on the outside of each tire', style: TextStyle(fontSize: 16)),
                 const SizedBox(height: 10),
                 Row(
@@ -339,7 +339,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           title: 'Trailer Length',
           child: Column(
             children: [
-              Image.asset('assets/images/car4h.png', height: 150),
+              Image.asset('assets/images/car4h.webp', height: 150),
               const Text('Measure the distance from the center of the rear wheel to the jack point, or to the center pf the front wheel if it is a drivable RV', style: TextStyle(fontSize: 16)),
               const SizedBox(height: 10),
               Row(
@@ -517,10 +517,10 @@ class _CarModeRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Row(
           children: [
-            Image.asset('assets/images/car$type.png', width: 100, height: 60),
+            Image.asset('assets/images/car$type.webp', width: 100, height: 60),
             const SizedBox(width: 10),
             Expanded(child: Text(name, style: TextStyle(fontWeight: FontWeight.bold, color: isActive ? Colors.green : Colors.grey[700]))),
-            if (isActive) Image.asset('assets/images/selecteds.png', width: 24),
+            if (isActive) Image.asset('assets/images/selecteds.webp', width: 24),
           ],
         ),
       ),

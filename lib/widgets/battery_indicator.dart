@@ -20,10 +20,10 @@ class BatteryIndicator extends StatelessWidget {
   }
 
   String _getBatteryImage(int level) {
-    if (level <= 20) return 'assets/images/center/power5.png';
-    if (level <= 40) return 'assets/images/center/power4.png';
-    if (level <= 60) return 'assets/images/center/power3.png';
-    if (level <= 80) return 'assets/images/center/power2.png';
-    return 'assets/images/center/power1.png';
+    if (level <= 20) return 'assets/images/center/power5.webp';
+    if (level <= 40) return 'assets/images/center/power4.webp';
+    if (level <= 60) return 'assets/images/center/power3.webp';
+    if (level <= 80) return 'assets/images/center/power2.webp';
+    return 'assets/images/center/power1.webp';
   }
 }

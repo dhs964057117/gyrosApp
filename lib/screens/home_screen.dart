@@ -130,20 +130,20 @@ class _HomeScreenState extends State<HomeScreen>
                       elevation: 0,
                       leading: IconButton(
                         icon: Image.asset(
-                          'assets/images/center/menu.png',
+                          'assets/images/center/menu.webp',
                           width: 26,
                         ),
                         onPressed: _toggleDrawer,
                       ),
                       title: Image.asset(
-                        'assets/images/app-logo.png',
+                        'assets/images/app-logo.webp',
                         width: 130,
                       ),
                       centerTitle: true,
                       actions: [
                         IconButton(
                           icon: Image.asset(
-                            'assets/images/center/set.png',
+                            'assets/images/center/set.webp',
                             width: 26,
                           ),
                           onPressed: () {
@@ -334,7 +334,7 @@ class _HomeScreenState extends State<HomeScreen>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _ControlButton(
-                        icon: 'assets/images/dingwei.png',
+                        icon: 'assets/images/dingwei.webp',
                         onPressed: () => _jiaozhun(context),
                       ), // Calibration
                       const SizedBox(width: 4),
@@ -363,7 +363,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       const SizedBox(width: 4),
                       _ControlButton(
-                        icon: 'assets/images/shoudiantong.png',
+                        icon: 'assets/images/shoudiantong.webp',
                         onPressed: _toggleTorch,
                       ), // Torch
                     ],
@@ -601,13 +601,13 @@ class _HomeScreenState extends State<HomeScreen>
     double greenThreshold = unit == 1 ? 2.54 : 1.0;
     double yellowThreshold = unit == 1 ? 7.62 : 3.0;
 
-    if (hAbs <= greenThreshold) return 'assets/images/leveler3.png';
+    if (hAbs <= greenThreshold) return 'assets/images/leveler3.webp';
     if (angle > 0) {
-      if (hAbs <= yellowThreshold) return 'assets/images/leveler4.png';
-      return 'assets/images/leveler5.png';
+      if (hAbs <= yellowThreshold) return 'assets/images/leveler4.webp';
+      return 'assets/images/leveler5.webp';
     } else {
-      if (hAbs <= yellowThreshold) return 'assets/images/leveler2.png';
-      return 'assets/images/leveler1.png';
+      if (hAbs <= yellowThreshold) return 'assets/images/leveler2.webp';
+      return 'assets/images/leveler1.webp';
     }
   }
 }

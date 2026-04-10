@@ -15,118 +15,118 @@ class $AssetsImagesGen {
   final $AssetsDeviceGen device = const $AssetsDeviceGen();
   final $AssetsGuideGen guide = const $AssetsGuideGen();
   final AssetGenImage appLogo = const AssetGenImage(
-    'assets/images/app-logo.png',
+    'assets/images/app-logo.webp',
   );
-  final AssetGenImage car1 = const AssetGenImage('assets/images/car1.png');
-  final AssetGenImage car1f = const AssetGenImage('assets/images/car1f.png');
-  final AssetGenImage car1h = const AssetGenImage('assets/images/car1h.png');
-  final AssetGenImage car1w = const AssetGenImage('assets/images/car1w.png');
-  final AssetGenImage car2 = const AssetGenImage('assets/images/car2.png');
-  final AssetGenImage car2f = const AssetGenImage('assets/images/car2f.png');
-  final AssetGenImage car2h = const AssetGenImage('assets/images/car2h.png');
-  final AssetGenImage car2w = const AssetGenImage('assets/images/car2w.png');
-  final AssetGenImage car3 = const AssetGenImage('assets/images/car3.png');
-  final AssetGenImage car3f = const AssetGenImage('assets/images/car3f.png');
-  final AssetGenImage car3h = const AssetGenImage('assets/images/car3h.png');
-  final AssetGenImage car3w = const AssetGenImage('assets/images/car3w.png');
-  final AssetGenImage car4 = const AssetGenImage('assets/images/car4.png');
-  final AssetGenImage car4f = const AssetGenImage('assets/images/car4f.png');
-  final AssetGenImage car4h = const AssetGenImage('assets/images/car4h.png');
-  final AssetGenImage car4w = const AssetGenImage('assets/images/car4w.png');
-  final AssetGenImage car5 = const AssetGenImage('assets/images/car5.png');
-  final AssetGenImage car5f = const AssetGenImage('assets/images/car5f.png');
-  final AssetGenImage car5h = const AssetGenImage('assets/images/car5h.png');
-  final AssetGenImage car5w = const AssetGenImage('assets/images/car5w.png');
+  final AssetGenImage car1 = const AssetGenImage('assets/images/car1.webp');
+  final AssetGenImage car1f = const AssetGenImage('assets/images/car1f.webp');
+  final AssetGenImage car1h = const AssetGenImage('assets/images/car1h.webp');
+  final AssetGenImage car1w = const AssetGenImage('assets/images/car1w.webp');
+  final AssetGenImage car2 = const AssetGenImage('assets/images/car2.webp');
+  final AssetGenImage car2f = const AssetGenImage('assets/images/car2f.webp');
+  final AssetGenImage car2h = const AssetGenImage('assets/images/car2h.webp');
+  final AssetGenImage car2w = const AssetGenImage('assets/images/car2w.webp');
+  final AssetGenImage car3 = const AssetGenImage('assets/images/car3.webp');
+  final AssetGenImage car3f = const AssetGenImage('assets/images/car3f.webp');
+  final AssetGenImage car3h = const AssetGenImage('assets/images/car3h.webp');
+  final AssetGenImage car3w = const AssetGenImage('assets/images/car3w.webp');
+  final AssetGenImage car4 = const AssetGenImage('assets/images/car4.webp');
+  final AssetGenImage car4f = const AssetGenImage('assets/images/car4f.webp');
+  final AssetGenImage car4h = const AssetGenImage('assets/images/car4h.webp');
+  final AssetGenImage car4w = const AssetGenImage('assets/images/car4w.webp');
+  final AssetGenImage car5 = const AssetGenImage('assets/images/car5.webp');
+  final AssetGenImage car5f = const AssetGenImage('assets/images/car5f.webp');
+  final AssetGenImage car5h = const AssetGenImage('assets/images/car5h.webp');
+  final AssetGenImage car5w = const AssetGenImage('assets/images/car5w.webp');
+  final AssetGenImage car5w1 = const AssetGenImage(
+    'assets/images/car5w_1.webp',
+  );
   final AssetGenImage carheight = const AssetGenImage(
-    'assets/images/carheight.png',
+    'assets/images/carheight.webp',
   );
   final AssetGenImage carweight = const AssetGenImage(
-    'assets/images/carweight.png',
+    'assets/images/carweight.webp',
   );
   final AssetGenImage dingwei = const AssetGenImage(
-    'assets/images/dingwei.png',
+    'assets/images/dingwei.webp',
   );
-  final AssetGenImage fushituJpg = const AssetGenImage(
-    'assets/images/fushitu.jpg',
-  );
-  final AssetGenImage fushituPng = const AssetGenImage(
-    'assets/images/fushitu.png',
+  final AssetGenImage fushitu = const AssetGenImage(
+    'assets/images/fushitu.webp',
   );
   final AssetGenImage launcherLogo = const AssetGenImage(
-    'assets/images/launcher_logo.png',
+    'assets/images/launcher_logo.webp',
   );
   final AssetGenImage leveler1 = const AssetGenImage(
-    'assets/images/leveler1.png',
+    'assets/images/leveler1.webp',
   );
   final AssetGenImage leveler2 = const AssetGenImage(
-    'assets/images/leveler2.png',
+    'assets/images/leveler2.webp',
   );
   final AssetGenImage leveler3 = const AssetGenImage(
-    'assets/images/leveler3.png',
+    'assets/images/leveler3.webp',
   );
   final AssetGenImage leveler4 = const AssetGenImage(
-    'assets/images/leveler4.png',
+    'assets/images/leveler4.webp',
   );
   final AssetGenImage leveler5 = const AssetGenImage(
-    'assets/images/leveler5.png',
+    'assets/images/leveler5.webp',
   );
   final AssetGenImage levelers = const AssetGenImage(
-    'assets/images/levelers.png',
+    'assets/images/levelers.webp',
   );
-  final AssetGenImage roback = const AssetGenImage('assets/images/roback.png');
+  final AssetGenImage roback = const AssetGenImage('assets/images/roback.webp');
   final AssetGenImage selecteds = const AssetGenImage(
-    'assets/images/selecteds.png',
+    'assets/images/selecteds.webp',
   );
   final AssetGenImage shoudiantong = const AssetGenImage(
-    'assets/images/shoudiantong.png',
+    'assets/images/shoudiantong.webp',
   );
   final AssetGenImage success = const AssetGenImage(
-    'assets/images/success.png',
+    'assets/images/success.webp',
   );
-  final AssetGenImage yuyan = const AssetGenImage('assets/images/yuyan.png');
+  final AssetGenImage yuyan = const AssetGenImage('assets/images/yuyan.webp');
 }
 
 class $AssetsCenterGen {
   const $AssetsCenterGen();
 
   final AssetGenImage logout = const AssetGenImage(
-    'assets/images/center/logout.png',
+    'assets/images/center/logout.webp',
   );
   final AssetGenImage menu = const AssetGenImage(
-    'assets/images/center/menu.png',
+    'assets/images/center/menu.webp',
   );
   final AssetGenImage power1 = const AssetGenImage(
-    'assets/images/center/power1.png',
+    'assets/images/center/power1.webp',
   );
   final AssetGenImage power2 = const AssetGenImage(
-    'assets/images/center/power2.png',
+    'assets/images/center/power2.webp',
   );
   final AssetGenImage power3 = const AssetGenImage(
-    'assets/images/center/power3.png',
+    'assets/images/center/power3.webp',
   );
   final AssetGenImage power4 = const AssetGenImage(
-    'assets/images/center/power4.png',
+    'assets/images/center/power4.webp',
   );
   final AssetGenImage power5 = const AssetGenImage(
-    'assets/images/center/power5.png',
+    'assets/images/center/power5.webp',
   );
   final AssetGenImage set_ = const AssetGenImage(
-    'assets/images/center/set.png',
+    'assets/images/center/set.webp',
   );
   final AssetGenImage wenduji = const AssetGenImage(
-    'assets/images/center/wenduji.png',
+    'assets/images/center/wenduji.webp',
   );
   final AssetGenImage wifi1 = const AssetGenImage(
-    'assets/images/center/wifi1.png',
+    'assets/images/center/wifi1.webp',
   );
   final AssetGenImage wifi2 = const AssetGenImage(
-    'assets/images/center/wifi2.png',
+    'assets/images/center/wifi2.webp',
   );
   final AssetGenImage wifi3 = const AssetGenImage(
-    'assets/images/center/wifi3.png',
+    'assets/images/center/wifi3.webp',
   );
   final AssetGenImage wifi4 = const AssetGenImage(
-    'assets/images/center/wifi4.png',
+    'assets/images/center/wifi4.webp',
   );
 }
 
@@ -134,7 +134,7 @@ class $AssetsDeviceGen {
   const $AssetsDeviceGen();
 
   final AssetGenImage deviceIco = const AssetGenImage(
-    'assets/images/device/device-ico.png',
+    'assets/images/device/device-ico.webp',
   );
 }
 
@@ -142,43 +142,43 @@ class $AssetsGuideGen {
   const $AssetsGuideGen();
 
   final AssetGenImage guide1 = const AssetGenImage(
-    'assets/images/guide/guide1.jpg',
+    'assets/images/guide/guide1.webp',
   );
   final AssetGenImage guide10 = const AssetGenImage(
-    'assets/images/guide/guide10.jpg',
+    'assets/images/guide/guide10.webp',
   );
   final AssetGenImage guide11 = const AssetGenImage(
-    'assets/images/guide/guide11.jpg',
+    'assets/images/guide/guide11.webp',
   );
   final AssetGenImage guide12 = const AssetGenImage(
-    'assets/images/guide/guide12.jpg',
+    'assets/images/guide/guide12.webp',
   );
   final AssetGenImage guide13 = const AssetGenImage(
-    'assets/images/guide/guide13.jpg',
+    'assets/images/guide/guide13.webp',
   );
   final AssetGenImage guide2 = const AssetGenImage(
-    'assets/images/guide/guide2.jpg',
+    'assets/images/guide/guide2.webp',
   );
   final AssetGenImage guide3 = const AssetGenImage(
-    'assets/images/guide/guide3.jpg',
+    'assets/images/guide/guide3.webp',
   );
   final AssetGenImage guide4 = const AssetGenImage(
-    'assets/images/guide/guide4.jpg',
+    'assets/images/guide/guide4.webp',
   );
   final AssetGenImage guide5 = const AssetGenImage(
-    'assets/images/guide/guide5.jpg',
+    'assets/images/guide/guide5.webp',
   );
   final AssetGenImage guide6 = const AssetGenImage(
-    'assets/images/guide/guide6.jpg',
+    'assets/images/guide/guide6.webp',
   );
   final AssetGenImage guide7 = const AssetGenImage(
-    'assets/images/guide/guide7.jpg',
+    'assets/images/guide/guide7.webp',
   );
   final AssetGenImage guide8 = const AssetGenImage(
-    'assets/images/guide/guide8.jpg',
+    'assets/images/guide/guide8.webp',
   );
   final AssetGenImage guide9 = const AssetGenImage(
-    'assets/images/guide/guide9.jpg',
+    'assets/images/guide/guide9.webp',
   );
 }
 
