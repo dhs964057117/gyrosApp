@@ -90,20 +90,23 @@ class OrientationModel extends ChangeNotifier {
     return double.parse(h.toStringAsFixed(2)); // Exact rounding as in original JS
   }
 
-  Map<String, dynamic> calculateWheelDifferentials(double ws, double hs) {
+  Map<String, dynamic> calculateWheelDifferentials(double ws, double hs, int unit) {
     // Rounding matches original JS: parseFloat(h1.toFixed(2))
-    double z1 = calculateHighDifference(_roll, hs, 1);
-    double z2 = calculateHighDifference(_pitch, ws, 1);
+    double z1 = calculateHighDifference(_roll, hs, unit);
+    double z2 = calculateHighDifference(_pitch, ws, unit);
     
-    // Thresholds for color coding (Using exact JS numbers: 8 and 24)
-    double zt8 = double.parse((hs * sin(8 * pi / 180.0)).toStringAsFixed(2));
-    double zt24 = double.parse((hs * sin(24 * pi / 180.0)).toStringAsFixed(2));
-    double zs8 = double.parse((ws * sin(8 * pi / 180.0)).toStringAsFixed(2));
-    double zs24 = double.parse((ws * sin(24 * pi / 180.0)).toStringAsFixed(2));
+    // Thresholds for color coding (Green: <= 1 inch, Yellow: <= 3 inches)
+    // 1 inch = 2.54 cm
+    double tGreen = unit == 1 ? 2.54 : 1.0;
+    double tYellow = unit == 1 ? 7.62 : 3.0;
     
-    // Average thresholds with exact JS precision
-    double zts8 = double.parse(((zt8 + zs8) / 2.0).toStringAsFixed(2));
-    double zts24 = double.parse(((zt24 + zs24) / 2.0).toStringAsFixed(2));
+    double zt8 = tGreen;
+    double zt24 = tYellow;
+    double zs8 = tGreen;
+    double zs24 = tYellow;
+    
+    double zts8 = tGreen;
+    double zts24 = tYellow;
 
     double l1 = 0, r1 = 0, l2 = 0, r2 = 0, t1 = 0, b1 = 0, l3 = 0, r3 = 0;
 

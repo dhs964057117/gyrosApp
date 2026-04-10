@@ -190,6 +190,7 @@ class _HomeScreenState extends State<HomeScreen>
         final wheelData = orientation.calculateWheelDifferentials(
           storage.width,
           storage.height,
+          storage.unit,
         );
         final wheelValues = Map<String, double>.from(wheelData['values']);
         final thresholds = Map<String, double>.from(wheelData['thresholds']);
@@ -198,6 +199,9 @@ class _HomeScreenState extends State<HomeScreen>
             ? orientation.pitch
             : (_viewMode == 2 ? orientation.roll : 0);
         double clampedAngle = _clampAngle(currentAngle);
+
+        double lengthForMode = _viewMode == 1 ? storage.height : storage.width;
+        double hAbs = _viewMode == 3 ? 0.0 : orientation.calculateHighDifference(currentAngle, lengthForMode, storage.unit).abs();
 
         return SingleChildScrollView(
           child: Padding(
@@ -245,7 +249,7 @@ class _HomeScreenState extends State<HomeScreen>
                         right: 0,
                         child: Center(
                           child: Image.asset(
-                            _getLevelerImage(currentAngle),
+                            _getLevelerImage(currentAngle, hAbs, storage.unit),
                             width: 240,
                             // gaplessPlayback 是核心：它能在新图片加载好之前保留旧图片，从而杜绝切换时的闪烁白屏
                             gaplessPlayback: true,
@@ -264,11 +268,11 @@ class _HomeScreenState extends State<HomeScreen>
                             style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color: _getGaugeColor(currentAngle),
+                              color: _getGaugeColor(hAbs, storage.unit),
                               fontFeatures: const [FontFeature.tabularFigures()],
                             ),
                             child: Text(
-                              _getDifferenceText(orientation, storage, _viewMode),
+                              _getDifferenceText(storage, _viewMode, hAbs),
                             ),
                           ),
                         ),
@@ -566,15 +570,10 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  String _getDifferenceText(OrientationModel model,
-      StorageService storage,
-      int mode,) {
+  String _getDifferenceText(StorageService storage, int mode, double hAbs) {
     if (mode == 3) return "";
-    double val = mode == 1 ? model.pitch : model.roll;
-    double l = mode == 1 ? storage.height : storage.width;
-    double h = model.calculateHighDifference(val, l, storage.unit);
     String unitStr = storage.unit == 1 ? ' cm' : '"';
-    return "${h.toStringAsFixed(2)}$unitStr";
+    return "${hAbs.toStringAsFixed(2)}$unitStr";
   }
 
   String _getLabelLeft(int mode) {
@@ -589,20 +588,27 @@ class _HomeScreenState extends State<HomeScreen>
     return "";
   }
 
-  Color _getGaugeColor(double angle) {
-    double absAngle = angle.abs();
-    if (absAngle <= 4.0) return const Color(0xFF9CDA1E);
-    if (absAngle <= 12.6) return const Color(0xFFECDC05);
+  Color _getGaugeColor(double hAbs, int unit) {
+    double greenThreshold = unit == 1 ? 2.54 : 1.0;
+    double yellowThreshold = unit == 1 ? 7.62 : 3.0;
+
+    if (hAbs <= greenThreshold) return const Color(0xFF9CDA1E);
+    if (hAbs <= yellowThreshold) return const Color(0xFFECDC05);
     return const Color(0xFFFB2A37);
   }
 
-  String _getLevelerImage(double angle) {
-    double absAngle = angle.abs();
-    if (absAngle <= 4.0) return 'assets/images/leveler3.png';
-    if (angle > 4.0 && angle <= 12.6) return 'assets/images/leveler4.png';
-    if (angle > 12.6) return 'assets/images/leveler5.png';
-    if (angle < -4.0 && angle >= -12.6) return 'assets/images/leveler2.png';
-    return 'assets/images/leveler1.png';
+  String _getLevelerImage(double angle, double hAbs, int unit) {
+    double greenThreshold = unit == 1 ? 2.54 : 1.0;
+    double yellowThreshold = unit == 1 ? 7.62 : 3.0;
+
+    if (hAbs <= greenThreshold) return 'assets/images/leveler3.png';
+    if (angle > 0) {
+      if (hAbs <= yellowThreshold) return 'assets/images/leveler4.png';
+      return 'assets/images/leveler5.png';
+    } else {
+      if (hAbs <= yellowThreshold) return 'assets/images/leveler2.png';
+      return 'assets/images/leveler1.png';
+    }
   }
 }
 
