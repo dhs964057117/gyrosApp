@@ -102,13 +102,13 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/images/launcher_logo.png"
+  image_path: "assets/images/launcher_logo.webp"
   min_sdk_android: 21
 
 flutter_native_splash:
   color: "#ffffff"
-  image: "assets/images/launcher_logo.png"
+  image: "assets/images/launcher_logo.webp"
   android_12:
-    image: "assets/images/launcher_logo.png"
+    image: "assets/images/launcher_logo.webp"
     color: "#ffffff"
   fullscreen: true
