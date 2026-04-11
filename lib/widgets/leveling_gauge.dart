@@ -6,7 +6,7 @@ class LevelingGauge extends StatelessWidget {
   final int carType;
   final int viewMode; // 1: Front-to-Back, 2: Side-to-Side, 3: Bird's Eye
   final double pitch; // Needed for bird's eye
-  final double roll;  // Needed for bird's eye
+  final double roll; // Needed for bird's eye
   final double width;
   final double height;
   final int unit;
@@ -31,55 +31,79 @@ class LevelingGauge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-        builder: (context, constraints) {
-          final double availableWidth = constraints.maxWidth;
-          final double availableHeight = constraints.maxHeight;
+      builder: (context, constraints) {
+        final double availableWidth = constraints.maxWidth;
+        final double availableHeight = constraints.maxHeight;
 
-          // Determine which car image to use
-          String carImage;
-          if (viewMode == 1) {
-            carImage = 'assets/images/car${carType}h.webp';
-          } else {
-            carImage = 'assets/images/car${carType}w.webp';
-          }
+        // Determine which car image to use
+        String carImage;
+        if (viewMode == 1) {
+          carImage = 'assets/images/car${carType}h.webp';
+        } else {
+          carImage = 'assets/images/car${carType}w.webp';
+        }
 
-          if (viewMode == 3) {
-            return _buildBirdsEyeView(availableWidth, availableHeight);
-          }
+        if (viewMode == 3) {
+          return _buildBirdsEyeView(availableWidth, availableHeight);
+        }
 
-          return Stack(
-            alignment: Alignment.center,
-            children: [
-              // Original JS: anime.animate("#wires", {rotate: (val * 5.2)+'deg' });
-              AnimatedRotation(
-                turns: (angle * 5.2) / 360.0,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOutBack, // 让指针冲过头一点点再弹回来
-                child: Container(
-                  height: availableHeight * 0.9,
-                  width: 20,
-                  alignment: Alignment.topCenter,
+        // Determine background gauge image
+        String levelerImage = _getLevelerImage(angle);
+
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            // Background Gauge (Leveler Arcs) - Now part of the same stack
+            Positioned(
+              top: 26, // Adjust to match HomeScreen's top:24 (24 - 15 = 9)
+              child: Image.asset(
+                levelerImage,
+                width: 240,
+                gaplessPlayback: true,
+              ),
+            ),
+            // Original JS: anime.animate("#wires", {rotate: (val * 5.2)+'deg' });
+            AnimatedRotation(
+              turns: (angle * 5.2) / 360.0,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut, // 移除 easeOutBack 避免回弹导致无法触及边缘
+              child: Container(
+                height: availableHeight * 0.92,
+                width: 20,
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 24.0), // 调整间距使其紧贴圆弧边缘
                   child: CustomPaint(
                     size: const Size(20, 20),
                     painter: TrianglePainter(color: const Color(0xFF343434)),
                   ),
                 ),
               ),
-              // Original JS: anime.animate("#fanos", {rotate: (val * 5.2 * 0.4)+'deg' });
-              AnimatedRotation(
-                turns: (angle * 2.08) / 360.0,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOutBack,
-                child: Image.asset(
-                  carImage,
-                  width: availableWidth * 0.8,
-                  fit: BoxFit.contain,
-                ),
+            ),
+            // Original JS: anime.animate("#fanos", {rotate: (val * 5.2 * 0.4)+'deg' });
+            AnimatedRotation(
+              turns: (angle * 2.08) / 360.0,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOutBack,
+              child: Image.asset(
+                carImage,
+                width: availableWidth * 0.8,
+                fit: BoxFit.contain,
               ),
-            ],
-          );
-        }
+            ),
+          ],
+        );
+      },
     );
+  }
+
+  String _getLevelerImage(double angle) {
+    double absAngle = angle.abs();
+    if (absAngle <= 1.0) return 'assets/images/leveler3.webp';
+    if (angle > 1.0 && angle <= 3.0) return 'assets/images/leveler4.webp';
+    if (angle > 3.0) return 'assets/images/leveler5.webp';
+    if (angle < -1.0 && angle >= -3.0) return 'assets/images/leveler2.webp';
+    return 'assets/images/leveler1.webp';
   }
 
   Color _getColor(double val, String key) {
@@ -108,15 +132,71 @@ class LevelingGauge extends StatelessWidget {
       children: [
         Center(child: Image.asset(carImage, width: width * 0.8)),
         if (carType <= 2) ...[
-          _WheelValue(label: 'L1', value: wheelValues['L1'] ?? 0, unit: unitStr, color: _getColor(wheelValues['L1'] ?? 0, 'L1'), top: height * 0.1, left: width * 0.05),
-          _WheelValue(label: 'R1', value: wheelValues['R1'] ?? 0, unit: unitStr, color: _getColor(wheelValues['R1'] ?? 0, 'R1'), top: height * 0.1, right: width * 0.05),
-          _WheelValue(label: 'L2', value: wheelValues['L2'] ?? 0, unit: unitStr, color: _getColor(wheelValues['L2'] ?? 0, 'L2'), top: height * 0.5, left: width * 0.05),
-          _WheelValue(label: 'R2', value: wheelValues['R2'] ?? 0, unit: unitStr, color: _getColor(wheelValues['R2'] ?? 0, 'R2'), top: height * 0.5, right: width * 0.05),
+          _WheelValue(
+            label: 'L1',
+            value: wheelValues['L1'] ?? 0,
+            unit: unitStr,
+            color: _getColor(wheelValues['L1'] ?? 0, 'L1'),
+            top: height * 0.1,
+            left: width * 0.05,
+          ),
+          _WheelValue(
+            label: 'R1',
+            value: wheelValues['R1'] ?? 0,
+            unit: unitStr,
+            color: _getColor(wheelValues['R1'] ?? 0, 'R1'),
+            top: height * 0.1,
+            right: width * 0.05,
+          ),
+          _WheelValue(
+            label: 'L2',
+            value: wheelValues['L2'] ?? 0,
+            unit: unitStr,
+            color: _getColor(wheelValues['L2'] ?? 0, 'L2'),
+            top: height * 0.5,
+            left: width * 0.05,
+          ),
+          _WheelValue(
+            label: 'R2',
+            value: wheelValues['R2'] ?? 0,
+            unit: unitStr,
+            color: _getColor(wheelValues['R2'] ?? 0, 'R2'),
+            top: height * 0.5,
+            right: width * 0.05,
+          ),
         ] else ...[
-          _WheelValue(label: 'T1', value: wheelValues['T1'] ?? 0, unit: unitStr, color: _getColor(wheelValues['T1'] ?? 0, 'T1'), top: -20, left: width * 0.35),
-          _WheelValue(label: 'B1', value: wheelValues['B1'] ?? 0, unit: unitStr, color: _getColor(wheelValues['B1'] ?? 0, 'B1'), bottom: -20, left: width * 0.35),
-          _WheelValue(label: 'L3', value: wheelValues['L3'] ?? 0, unit: unitStr, color: _getColor(wheelValues['L3'] ?? 0, 'L3'), top: height * 0.3, left: width * 0.05),
-          _WheelValue(label: 'R3', value: wheelValues['R3'] ?? 0, unit: unitStr, color: _getColor(wheelValues['R3'] ?? 0, 'R3'), top: height * 0.3, right: width * 0.05),
+          _WheelValue(
+            label: 'T1',
+            value: wheelValues['T1'] ?? 0,
+            unit: unitStr,
+            color: _getColor(wheelValues['T1'] ?? 0, 'T1'),
+            top: -20,
+            left: width * 0.35,
+          ),
+          _WheelValue(
+            label: 'B1',
+            value: wheelValues['B1'] ?? 0,
+            unit: unitStr,
+            color: _getColor(wheelValues['B1'] ?? 0, 'B1'),
+            bottom: -20,
+            left: width * 0.35,
+          ),
+          _WheelValue(
+            label: 'L3',
+            value: wheelValues['L3'] ?? 0,
+            unit: unitStr,
+            color: _getColor(wheelValues['L3'] ?? 0, 'L3'),
+            top: height * 0.3,
+            left: width * 0.05,
+          ),
+          _WheelValue(
+            label: 'R3',
+            value: wheelValues['R3'] ?? 0,
+            unit: unitStr,
+            color: _getColor(wheelValues['R3'] ?? 0, 'R3'),
+            top: height * 0.3,
+            right: width * 0.05,
+          ),
         ],
       ],
     );
@@ -135,7 +215,10 @@ class _WheelValue extends StatelessWidget {
     required this.value,
     required this.unit,
     required this.color,
-    this.top, this.bottom, this.left, this.right,
+    this.top,
+    this.bottom,
+    this.left,
+    this.right,
   });
 
   @override
@@ -167,6 +250,7 @@ class _WheelValue extends StatelessWidget {
 
 class TrianglePainter extends CustomPainter {
   final Color color;
+
   TrianglePainter({required this.color});
 
   @override
@@ -176,7 +260,7 @@ class TrianglePainter extends CustomPainter {
     final paint = Paint()..color = color;
     final path = Path();
     path.moveTo(size.width / 2, 0); // Top center tip
-    path.lineTo(0, size.height);    // Bottom left corner
+    path.lineTo(0, size.height); // Bottom left corner
     path.lineTo(size.width, size.height); // Bottom right corner
     path.close();
     canvas.drawPath(path, paint);

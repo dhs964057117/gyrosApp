@@ -76,11 +76,11 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  // Clamping function for gauge rotation (per original JS lines 672-676)
-  // The raw angle value (val) is capped at 5.0
+  // Clamping function for gauge rotation (per original JS lines 1399-1401)
+  // The visual angle is capped to match the dial's range
   double _clampAngle(double angle) {
-    if (angle <= -5.0) return -5.0;
-    if (angle >= 5.0) return 5.0;
+    if (angle <= -5.7) return -5.7;
+    if (angle >= 5.7) return 5.7;
     return angle;
   }
 
@@ -243,20 +243,6 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                           child: Stack(
                             children: [
-                              // Leveler Image
-                              Positioned(
-                                top: 24,
-                                left: 0,
-                                right: 0,
-                                child: Center(
-                                  child: Image.asset(
-                                    _getLevelerImage(currentAngle),
-                                    width: 240,
-                                    // gaplessPlayback 是核心：它能在新图片加载好之前保留旧图片，从而杜绝切换时的闪烁白屏
-                                    gaplessPlayback: true,
-                                  ),
-                                ),
-                              ),
                               // High Difference Text
                               Positioned(
                                 top: 110,
@@ -594,18 +580,6 @@ class _HomeScreenState extends State<HomeScreen>
     if (absAngle <= 1.0) return const Color(0xFF9CDA1E);
     if (absAngle <= 3.0) return const Color(0xFFECDC05);
     return const Color(0xFFFB2A37);
-  }
-
-  String _getLevelerImage(double angle) {
-    double absAngle = angle.abs();
-    if (absAngle <= 1.0) return 'assets/images/leveler3.webp';
-    if (angle > 0) {
-      if (absAngle <= 3.0) return 'assets/images/leveler4.webp';
-      return 'assets/images/leveler5.webp';
-    } else {
-      if (absAngle <= 3.0) return 'assets/images/leveler2.webp';
-      return 'assets/images/leveler1.webp';
-    }
   }
 }
 
