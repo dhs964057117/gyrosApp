@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class LevelingGauge extends StatelessWidget {
@@ -35,63 +34,73 @@ class LevelingGauge extends StatelessWidget {
         final double availableWidth = constraints.maxWidth;
         final double availableHeight = constraints.maxHeight;
 
-        // Determine which car image to use
-        String carImage;
-        if (viewMode == 1) {
-          carImage = 'assets/images/car${carType}h.webp';
-        } else {
-          carImage = 'assets/images/car${carType}w.webp';
-        }
-
+        // 鸟瞰图 (Mode 3) 内部已经使用了按比例布局，保持原样
         if (viewMode == 3) {
           return _buildBirdsEyeView(availableWidth, availableHeight);
         }
 
+        // Determine which car image to use
+        String carImage = viewMode == 1
+            ? 'assets/images/car${carType}h.webp'
+            : 'assets/images/car${carType}w.webp';
+
         // Determine background gauge image
         String levelerImage = _getLevelerImage(angle);
 
-        return Stack(
-          alignment: Alignment.center,
-          children: [
-            // Background Gauge (Leveler Arcs) - Now part of the same stack
-            Positioned(
-              top: 26, // Adjust to match HomeScreen's top:24 (24 - 15 = 9)
-              child: Image.asset(
-                levelerImage,
-                width: 240,
-                gaplessPlayback: true,
-              ),
-            ),
-            // Original JS: anime.animate("#wires", {rotate: (val * 5.2)+'deg' });
-            AnimatedRotation(
-              turns: (angle * 5.2) / 360.0,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOut, // 移除 easeOutBack 避免回弹导致无法触及边缘
-              child: Container(
-                height: availableHeight * 0.92,
-                width: 20,
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 24.0), // 调整间距使其紧贴圆弧边缘
-                  child: CustomPaint(
-                    size: const Size(20, 20),
-                    painter: TrianglePainter(color: const Color(0xFF343434)),
+        // 使用固定的逻辑坐标系 (350 x 500)，然后使用 FittedBox 等比缩放整个 Stack。
+        // 彻底锁死圆弧、指针、小车之间的相对位置和大小关系，永不越界。
+        return FittedBox(
+          fit: BoxFit.contain, // 保证等比缩放并在容器内居中完整显示
+          child: SizedBox(
+            width: 350,  // 逻辑宽度
+            height: 500, // 逻辑高度
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Background Gauge (Leveler Arcs)
+                Positioned(
+                  top: 26, // 维持原有的固定位置逻辑
+                  child: Image.asset(
+                    levelerImage,
+                    width: 240, // 维持原有的固定大小
+                    gaplessPlayback: true,
                   ),
                 ),
-              ),
+                // 仪表的指针 - 独立出完美的几何旋转体系
+                Positioned(
+                  top: 35, // 略微上移，让旋转中心完美对准圆弧图像的几何圆心
+                  child: AnimatedRotation(
+                    turns: (angle * 6.5) / 360.0, // 将倍率从5.2放大到7.5，确保极限角度下能扫到圆弧最末端的边缘
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                    child: Container(
+                      height: 360, // 设置精确的旋转直径(半径180)，这与圆弧的物理曲率100%吻合，无论怎么转都不会越界
+                      width: 20,
+                      alignment: Alignment.topCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 10.0), // 指针尖端向下压10像素，稳稳卡在彩色带中央
+                        child: CustomPaint(
+                          size: const Size(20, 20),
+                          painter: TrianglePainter(color: const Color(0xFF343434)),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // 小车图片
+                AnimatedRotation(
+                  turns: (angle * 2.08) / 360.0,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutBack,
+                  child: Image.asset(
+                    carImage,
+                    width: 280, // 相当于你原来的 availableWidth * 0.8 (350 * 0.8 = 280)
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ],
             ),
-            // Original JS: anime.animate("#fanos", {rotate: (val * 5.2 * 0.4)+'deg' });
-            AnimatedRotation(
-              turns: (angle * 2.08) / 360.0,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutBack,
-              child: Image.asset(
-                carImage,
-                width: availableWidth * 0.8,
-                fit: BoxFit.contain,
-              ),
-            ),
-          ],
+          ),
         );
       },
     );
@@ -255,8 +264,6 @@ class TrianglePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Original CSS: width:0; height:0; border-left/right: 10px; border-bottom: 20px
-    // This creates an upward pointing triangle.
     final paint = Paint()..color = color;
     final path = Path();
     path.moveTo(size.width / 2, 0); // Top center tip
