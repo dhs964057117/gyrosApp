@@ -50,9 +50,9 @@ class LevelingGauge extends StatelessWidget {
           return Stack(
             alignment: Alignment.center,
             children: [
-              // 优化：使用 easeOutBack 曲线实现弹性回弹效果，并适当延长动画时间让弹性可见
+              // Original JS: anime.animate("#wires", {rotate: (val * 5.2)+'deg' });
               AnimatedRotation(
-                turns: angle / 360.0,
+                turns: (angle * 5.2) / 360.0,
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOutBack, // 让指针冲过头一点点再弹回来
                 child: Container(
@@ -65,9 +65,9 @@ class LevelingGauge extends StatelessWidget {
                   ),
                 ),
               ),
-              // 让车身也保持同样的弹性物理反馈
+              // Original JS: anime.animate("#fanos", {rotate: (val * 5.2 * 0.4)+'deg' });
               AnimatedRotation(
-                turns: (angle / 2.0) / 360.0,
+                turns: (angle * 2.08) / 360.0,
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOutBack,
                 child: Image.asset(

@@ -76,10 +76,11 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  // Clamping function for gauge rotation (per original JS lines 311/643)
+  // Clamping function for gauge rotation (per original JS lines 672-676)
+  // The raw angle value (val) is capped at 5.0
   double _clampAngle(double angle) {
-    if (angle <= -26.0) return -26.0;
-    if (angle >= 26.0) return 26.0;
+    if (angle <= -5.0) return -5.0;
+    if (angle >= 5.0) return 5.0;
     return angle;
   }
 
@@ -201,82 +202,82 @@ class _HomeScreenState extends State<HomeScreen>
         double clampedAngle = _clampAngle(currentAngle);
 
         double lengthForMode = _viewMode == 1 ? storage.height : storage.width;
-        double hAbs = _viewMode == 3 ? 0.0 : orientation.calculateHighDifference(currentAngle, lengthForMode, storage.unit).abs();
+                double hAbsVal = _viewMode == 3 ? 0.0 : orientation.calculateHighDifference(currentAngle, lengthForMode, storage.unit, linear: true);
 
-        return SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                // Battery and Temperature Row
-                Container(
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF6A42E),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: BatteryIndicator(
-                          level: orientation.batteryLevel,
-                        ),
-                      ),
-                      Expanded(
-                        child: TemperatureIndicator(
-                          temp: orientation.temperatureCelsius,
-                          unit: storage.tempUnit,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 30),
-                // Gauge Box
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.6,
-                  decoration: BoxDecoration(
-                    color: const Color(0x66DAD6DB),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Stack(
-                    children: [
-                      // Leveler Image
-                      Positioned(
-                        top: 24,
-                        left: 0,
-                        right: 0,
-                        child: Center(
-                          child: Image.asset(
-                            _getLevelerImage(currentAngle, hAbs, storage.unit),
-                            width: 240,
-                            // gaplessPlayback 是核心：它能在新图片加载好之前保留旧图片，从而杜绝切换时的闪烁白屏
-                            gaplessPlayback: true,
+                return SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 20),
+                        // Battery and Temperature Row
+                        Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF6A42E),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: BatteryIndicator(
+                                  level: orientation.batteryLevel,
+                                ),
+                              ),
+                              Expanded(
+                                child: TemperatureIndicator(
+                                  temp: orientation.temperatureCelsius,
+                                  unit: storage.tempUnit,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                      // High Difference Text
-                      Positioned(
-                        top: 110,
-                        left: 0,
-                        right: 0,
-                        child: Center(
-                          child: AnimatedDefaultTextStyle(
-                            duration: const Duration(milliseconds: 100),
-                            curve: Curves.linear,
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: _getGaugeColor(hAbs, storage.unit),
-                              fontFeatures: const [FontFeature.tabularFigures()],
-                            ),
-                            child: Text(
-                              _getDifferenceText(storage, _viewMode, hAbs),
-                            ),
+                        const SizedBox(height: 30),
+                        // Gauge Box
+                        Container(
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          decoration: BoxDecoration(
+                            color: const Color(0x66DAD6DB),
+                            borderRadius: BorderRadius.circular(4),
                           ),
-                        ),
-                      ),
+                          child: Stack(
+                            children: [
+                              // Leveler Image
+                              Positioned(
+                                top: 24,
+                                left: 0,
+                                right: 0,
+                                child: Center(
+                                  child: Image.asset(
+                                    _getLevelerImage(currentAngle),
+                                    width: 240,
+                                    // gaplessPlayback 是核心：它能在新图片加载好之前保留旧图片，从而杜绝切换时的闪烁白屏
+                                    gaplessPlayback: true,
+                                  ),
+                                ),
+                              ),
+                              // High Difference Text
+                              Positioned(
+                                top: 110,
+                                left: 0,
+                                right: 0,
+                                child: Center(
+                                  child: AnimatedDefaultTextStyle(
+                                    duration: const Duration(milliseconds: 100),
+                                    curve: Curves.linear,
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      color: _getGaugeColor(currentAngle),
+                                      fontFeatures: const [FontFeature.tabularFigures()],
+                                    ),
+                                    child: Text(
+                                      _getDifferenceText(storage, _viewMode, hAbsVal),
+                                    ),
+                                  ),
+                                ),
+                              ),
                       // Main LevelingGauge Animation
                       // 重点优化：整体向下偏移（top: 75），让指针正好1/3刺入圆弧，剩下2/3在圆弧下方
                       Positioned(
@@ -588,25 +589,21 @@ class _HomeScreenState extends State<HomeScreen>
     return "";
   }
 
-  Color _getGaugeColor(double hAbs, int unit) {
-    double greenThreshold = unit == 1 ? 2.54 : 1.0;
-    double yellowThreshold = unit == 1 ? 7.62 : 3.0;
-
-    if (hAbs <= greenThreshold) return const Color(0xFF9CDA1E);
-    if (hAbs <= yellowThreshold) return const Color(0xFFECDC05);
+  Color _getGaugeColor(double angle) {
+    double absAngle = angle.abs();
+    if (absAngle <= 1.0) return const Color(0xFF9CDA1E);
+    if (absAngle <= 3.0) return const Color(0xFFECDC05);
     return const Color(0xFFFB2A37);
   }
 
-  String _getLevelerImage(double angle, double hAbs, int unit) {
-    double greenThreshold = unit == 1 ? 2.54 : 1.0;
-    double yellowThreshold = unit == 1 ? 7.62 : 3.0;
-
-    if (hAbs <= greenThreshold) return 'assets/images/leveler3.webp';
+  String _getLevelerImage(double angle) {
+    double absAngle = angle.abs();
+    if (absAngle <= 1.0) return 'assets/images/leveler3.webp';
     if (angle > 0) {
-      if (hAbs <= yellowThreshold) return 'assets/images/leveler4.webp';
+      if (absAngle <= 3.0) return 'assets/images/leveler4.webp';
       return 'assets/images/leveler5.webp';
     } else {
-      if (hAbs <= yellowThreshold) return 'assets/images/leveler2.webp';
+      if (absAngle <= 3.0) return 'assets/images/leveler2.webp';
       return 'assets/images/leveler1.webp';
     }
   }

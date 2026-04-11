@@ -42,17 +42,16 @@ class OrientationModel extends ChangeNotifier {
       shangxiazhi = -shangxiazhi;
     }
 
-    // In the original JS:
-    // "type=1" (FRONT-TO-BACK view) uses zuoyouzhi
-    // "type=2" (SIDE-TO-SIDE view) uses shangxiazhi
-    // AND they are strictly clamped to [-26, 26] for calculations!
+    // In the original JS (lines 672-676):
+    // val is capped at [-5, 5] degrees.
+    // This value is then multiplied by 5.2 for visual rotation (5 * 5.2 = 26 degrees visual).
     _pitch = zuoyouzhi;
-    if (_pitch < -26.0) _pitch = -26.0;
-    if (_pitch > 26.0) _pitch = 26.0;
-
+    if (_pitch < -5.0) _pitch = -5.0;
+    if (_pitch > 5.0) _pitch = 5.0;
+ 
     _roll = shangxiazhi;
-    if (_roll < -26.0) _roll = -26.0;
-    if (_roll > 26.0) _roll = 26.0;
+    if (_roll < -5.0) _roll = -5.0;
+    if (_roll > 5.0) _roll = 5.0;
 
     // Calibration status (hex characters 8-10)
     if (hex.length >= 10) {
@@ -84,33 +83,41 @@ class OrientationModel extends ChangeNotifier {
     return val;
   }
 
-  double calculateHighDifference(double angle, double l, int unit) {
+  double calculateHighDifference(double angle, double l, int unit, {bool linear = false}) {
+    // In the original JS (center.html lines 386-393/1529-1535):
+    // The actual vehicle length (l) is ignored, and a fixed multiplier is used.
+    double baseLength = (unit == 1 ? 2.0 : 1.0);
+
+    if (linear) {
+      // Original JS quirk: Main display uses linear baseLength * angle
+      return double.parse((baseLength * angle.abs()).toStringAsFixed(2));
+    }
     double angleInRadians = angle.abs() * pi / 180.0;
-    double h = l * sin(angleInRadians);
+    double h = baseLength * sin(angleInRadians);
     return double.parse(h.toStringAsFixed(2)); // Exact rounding as in original JS
   }
 
   Map<String, dynamic> calculateWheelDifferentials(double ws, double hs, int unit) {
+    // Original JS hardcodes ws/hs to 2/1 in center.html even for Bird's Eye view
+    double fixedL = (unit == 1 ? 2.0 : 1.0);
+
     // Rounding matches original JS: parseFloat(h1.toFixed(2))
-    double z1 = calculateHighDifference(_roll, hs, unit);
-    double z2 = calculateHighDifference(_pitch, ws, unit);
+    double z1 = calculateHighDifference(_roll, fixedL, unit);
+    double z2 = calculateHighDifference(_pitch, fixedL, unit);
     
-    // Thresholds for color coding (Green: <= 1 inch, Yellow: <= 3 inches)
-    // 1 inch = 2.54 cm
-    double tGreen = unit == 1 ? 2.54 : 1.0;
-    double tYellow = unit == 1 ? 7.62 : 3.0;
+    // Original JS uses sin(8) and sin(24) applied to the fixed length
+    double zt8 = calculateHighDifference(8.0, fixedL, unit);
+    double zt24 = calculateHighDifference(24.0, fixedL, unit);
+    double zs8 = calculateHighDifference(8.0, fixedL, unit);
+    double zs24 = calculateHighDifference(24.0, fixedL, unit);
     
-    double zt8 = tGreen;
-    double zt24 = tYellow;
-    double zs8 = tGreen;
-    double zs24 = tYellow;
-    
-    double zts8 = tGreen;
-    double zts24 = tYellow;
+    // Average thresholds as per original JS line 812-813
+    double zts8 = double.parse(((zt8 + zs8) / 2.0).toStringAsFixed(2));
+    double zts24 = double.parse(((zt24 + zs24) / 2.0).toStringAsFixed(2));
 
     double l1 = 0, r1 = 0, l2 = 0, r2 = 0, t1 = 0, b1 = 0, l3 = 0, r3 = 0;
 
-    // Bird's Eye Logic (Original logic with number/string safety)
+    // Bird's Eye Logic (Original logic from center.html lines 815-859)
     if (_roll <= 0) {
       l1 = z1; r1 = z1; t1 = z1;
     } else {
