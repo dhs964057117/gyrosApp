@@ -42,16 +42,10 @@ class OrientationModel extends ChangeNotifier {
       shangxiazhi = -shangxiazhi;
     }
 
-    // In the original JS (lines 672-676):
-    // val is capped at [-5, 5] degrees.
-    // This value is then multiplied by 5.2 for visual rotation (5 * 5.2 = 26 degrees visual).
+    // In the original JS, the raw angle value is used for text display WITHOUT clamping.
+    // Clamping only happens for the visual gauge rotation logic.
     _pitch = zuoyouzhi;
-    if (_pitch < -5.0) _pitch = -5.0;
-    if (_pitch > 5.0) _pitch = 5.0;
- 
     _roll = shangxiazhi;
-    if (_roll < -5.0) _roll = -5.0;
-    if (_roll > 5.0) _roll = 5.0;
 
     // Calibration status (hex characters 8-10)
     if (hex.length >= 10) {
