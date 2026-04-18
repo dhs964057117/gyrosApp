@@ -42,6 +42,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.dispose();
   }
 
+  // 新增此方法：处理单位切换时的自动换算
+  void _handleUnitChange(int newUnit) {
+    if (_unit == newUnit) return;
+
+    double currentWidth = double.tryParse(_widthController.text) ?? 0.0;
+    double currentHeight = double.tryParse(_heightController.text) ?? 0.0;
+
+    if (newUnit == 2 && _unit == 1) {
+      // cm -> inch (除以 2.54)
+      _widthController.text = (currentWidth / 2.54).toStringAsFixed(1);
+      _heightController.text = (currentHeight / 2.54).toStringAsFixed(1);
+    } else if (newUnit == 1 && _unit == 2) {
+      // inch -> cm (乘以 2.54)
+      _widthController.text = (currentWidth * 2.54).toStringAsFixed(1);
+      _heightController.text = (currentHeight * 2.54).toStringAsFixed(1);
+    }
+
+    setState(() {
+      _unit = newUnit;
+    });
+  }
+
   void _save() {
     final storage = Provider.of<StorageService>(context, listen: false);
     storage.unit = _unit;
@@ -193,9 +215,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
           title: 'Measurement Units',
           child: Row(
             children: [
-              Expanded(child: _ToggleButton(text: 'Inches', isActive: _unit == 2, onPressed: () => setState(() => _unit = 2))),
+              Expanded(
+                child: _ToggleButton(
+                  text: 'Inches',
+                  isActive: _unit == 2,
+                  onPressed: () => setState(() => _handleUnitChange(2)),
+                ),
+              ),
               const SizedBox(width: 10),
-              Expanded(child: _ToggleButton(text: 'Centimeters', isActive: _unit == 1, onPressed: () => setState(() => _unit = 1))),
+              Expanded(
+                child: _ToggleButton(
+                  text: 'Centimeters',
+                  isActive: _unit == 1,
+                  onPressed: () => setState(() => _handleUnitChange(1)),
+                ),
+              ),
             ],
           ),
         ),
