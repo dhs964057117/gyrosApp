@@ -94,6 +94,53 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
+  void _onSetLevelPressed() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: const Text(
+          'Is it confirmed that the tire spacing of the recreational vehicle needs to be revised again?',
+          style: TextStyle(fontSize: 16),
+        ),
+        contentPadding: const EdgeInsets.all(20),
+        actionsPadding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white, // 白色字体蓝色背景
+                    elevation: 0,
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _scrollToTrailerWidth();
+                  },
+                  child: const Text('Sure'),
+                ),
+              ),
+              const SizedBox(width: 15),
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white, // 白色背景
+                    foregroundColor: Colors.black, // 黑色字体
+                    side: const BorderSide(color: Color(0xFFCCCCCC)),
+                    elevation: 0,
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   void _performScroll() {
     final RenderBox? renderBox = _trailerWidthKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) {
@@ -254,7 +301,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 20),
               Center(
                 child: ElevatedButton(
-                  onPressed: _scrollToTrailerWidth,
+                  onPressed: _onSetLevelPressed,
                   style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFE49D00)),
                   child: const Text('Set Level', style: TextStyle(color: Colors.white)),
                 ),
