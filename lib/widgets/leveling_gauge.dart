@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
 class LevelingGauge extends StatelessWidget {
   final double angle;
@@ -44,8 +45,21 @@ class LevelingGauge extends StatelessWidget {
             ? 'assets/images/car${carType}h.webp'
             : 'assets/images/car${carType}w.webp';
 
-        // Determine background gauge image
-        String levelerImage = _getLevelerImage(angle);
+        // JS Logic for wheel rotation and image states
+        double l = viewMode == 1 ? height : width;
+        double hSigned = l * (math.sin(angle * math.pi / 180.0));
+        double nums = double.parse(hSigned.toStringAsFixed(2));
+
+        // Clamp nums according to JS limits
+        double limit = unit == 1 ? 12.5 : 5.0;
+        if (nums <= -limit) nums = -limit;
+        if (nums >= limit) nums = limit;
+
+        // JS fw calculation
+        double fw = unit == 1 ? (nums * 2.1) : (nums * 5.2);
+
+        // Determine background gauge image based on absolute height difference (not angle)
+        String levelerImage = _getLevelerImage(angle, nums.abs());
 
         // 使用固定的逻辑坐标系 (350 x 500)，然后使用 FittedBox 等比缩放整个 Stack。
         // 彻底锁死圆弧、指针、小车之间的相对位置和大小关系，永不越界。
@@ -70,7 +84,7 @@ class LevelingGauge extends StatelessWidget {
                 Positioned(
                   top: 35, // 略微上移，让旋转中心完美对准圆弧图像的几何圆心
                   child: AnimatedRotation(
-                    turns: (angle * 6.5) / 360.0, // 将倍率从5.2放大到7.5，确保极限角度下能扫到圆弧最末端的边缘
+                    turns: fw / 360.0, // Match JS: rotate: fw+'deg'
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeOut,
                     child: Container(
@@ -89,7 +103,7 @@ class LevelingGauge extends StatelessWidget {
                 ),
                 // 小车图片
                 AnimatedRotation(
-                  turns: (angle * 2.08) / 360.0,
+                  turns: (fw * 0.4) / 360.0, // Match JS: rotate: (fw*0.4)+'deg'
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeOutBack,
                   child: Image.asset(
@@ -106,13 +120,12 @@ class LevelingGauge extends StatelessWidget {
     );
   }
 
-  String _getLevelerImage(double angle) {
-    double absAngle = angle.abs();
-    if (absAngle <= 1.0) return 'assets/images/leveler3.webp';
-    if (angle > 1.0 && angle <= 3.0) return 'assets/images/leveler4.webp';
-    if (angle > 3.0) return 'assets/images/leveler5.webp';
-    if (angle < -1.0 && angle >= -3.0) return 'assets/images/leveler2.webp';
-    return 'assets/images/leveler1.webp';
+  String _getLevelerImage(double angle, double hAbs) {
+    if (hAbs <= 1.0) return 'assets/images/leveler3.webp';
+    if (hAbs > 1.0 && hAbs <= 3.0) {
+      return angle > 0 ? 'assets/images/leveler4.webp' : 'assets/images/leveler2.webp';
+    }
+    return angle > 0 ? 'assets/images/leveler5.webp' : 'assets/images/leveler1.webp';
   }
 
   Color _getColor(double val, String key) {

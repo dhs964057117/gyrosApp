@@ -199,12 +199,11 @@ class _HomeScreenState extends State<HomeScreen>
         double currentAngle = _viewMode == 1
             ? orientation.pitch
             : (_viewMode == 2 ? orientation.roll : 0);
-        double clampedAngle = _clampAngle(currentAngle);
 
         double lengthForMode = _viewMode == 1 ? storage.height : storage.width;
-                double hAbsVal = _viewMode == 3 ? 0.0 : orientation.calculateHighDifference(currentAngle, lengthForMode, storage.unit, linear: true);
+        double hAbsVal = _viewMode == 3 ? 0.0 : orientation.calculateHighDifference(currentAngle, lengthForMode);
 
-                return SingleChildScrollView(
+        return SingleChildScrollView(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Column(
@@ -255,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     style: TextStyle(
                                       fontSize: 28,
                                       fontWeight: FontWeight.bold,
-                                      color: _getGaugeColor(currentAngle),
+                                      color: _getGaugeColor(hAbsVal),
                                       fontFeatures: const [FontFeature.tabularFigures()],
                                     ),
                                     child: Text(
@@ -272,7 +271,7 @@ class _HomeScreenState extends State<HomeScreen>
                         left: 0,
                         right: 0,
                         child: LevelingGauge(
-                          angle: clampedAngle,
+                          angle: currentAngle,
                           carType: storage.carType,
                           viewMode: _viewMode,
                           pitch: orientation.pitch,
@@ -575,10 +574,9 @@ class _HomeScreenState extends State<HomeScreen>
     return "";
   }
 
-  Color _getGaugeColor(double angle) {
-    double absAngle = angle.abs();
-    if (absAngle <= 1.0) return const Color(0xFF9CDA1E);
-    if (absAngle <= 3.0) return const Color(0xFFECDC05);
+  Color _getGaugeColor(double hAbsVal) {
+    if (hAbsVal <= 1.0) return const Color(0xFF9CDA1E);
+    if (hAbsVal <= 3.0) return const Color(0xFFECDC05);
     return const Color(0xFFFB2A37);
   }
 }

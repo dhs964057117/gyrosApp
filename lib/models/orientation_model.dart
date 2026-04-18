@@ -77,33 +77,22 @@ class OrientationModel extends ChangeNotifier {
     return val;
   }
 
-  double calculateHighDifference(double angle, double l, int unit, {bool linear = false}) {
-    // In the original JS (center.html lines 386-393/1529-1535):
-    // The actual vehicle length (l) is ignored, and a fixed multiplier is used.
-    double baseLength = (unit == 1 ? 2.0 : 1.0);
-
-    if (linear) {
-      // Original JS quirk: Main display uses linear baseLength * angle
-      return double.parse((baseLength * angle.abs()).toStringAsFixed(2));
-    }
+  double calculateHighDifference(double angle, double l) {
     double angleInRadians = angle.abs() * pi / 180.0;
-    double h = baseLength * sin(angleInRadians);
+    double h = l * sin(angleInRadians);
     return double.parse(h.toStringAsFixed(2)); // Exact rounding as in original JS
   }
 
   Map<String, dynamic> calculateWheelDifferentials(double ws, double hs, int unit) {
-    // Original JS hardcodes ws/hs to 2/1 in center.html even for Bird's Eye view
-    double fixedL = (unit == 1 ? 2.0 : 1.0);
-
     // Rounding matches original JS: parseFloat(h1.toFixed(2))
-    double z1 = calculateHighDifference(_roll, fixedL, unit);
-    double z2 = calculateHighDifference(_pitch, fixedL, unit);
+    double z1 = calculateHighDifference(_pitch, hs); // zuoyouzhi -> z1 (hs)
+    double z2 = calculateHighDifference(_roll, ws);  // shangxiazhi -> z2 (ws)
     
-    // Original JS uses sin(8) and sin(24) applied to the fixed length
-    double zt8 = calculateHighDifference(8.0, fixedL, unit);
-    double zt24 = calculateHighDifference(24.0, fixedL, unit);
-    double zs8 = calculateHighDifference(8.0, fixedL, unit);
-    double zs24 = calculateHighDifference(24.0, fixedL, unit);
+    // Original JS uses sin(8) and sin(24) applied to the dimensions
+    double zt8 = calculateHighDifference(8.0, hs);
+    double zt24 = calculateHighDifference(24.0, hs);
+    double zs8 = calculateHighDifference(8.0, ws);
+    double zs24 = calculateHighDifference(24.0, ws);
     
     // Average thresholds as per original JS line 812-813
     double zts8 = double.parse(((zt8 + zs8) / 2.0).toStringAsFixed(2));
@@ -112,13 +101,13 @@ class OrientationModel extends ChangeNotifier {
     double l1 = 0, r1 = 0, l2 = 0, r2 = 0, t1 = 0, b1 = 0, l3 = 0, r3 = 0;
 
     // Bird's Eye Logic (Original logic from center.html lines 815-859)
-    if (_roll <= 0) {
+    if (_pitch <= 0) {
       l1 = z1; r1 = z1; t1 = z1;
     } else {
       l2 = z1; r2 = z1; b1 = z1;
     }
 
-    if (_pitch <= 0) {
+    if (_roll <= 0) {
       if (r1 != 0) {
         r1 = double.parse(((r1 + z2) / 2.0).toStringAsFixed(2));
       } else {
