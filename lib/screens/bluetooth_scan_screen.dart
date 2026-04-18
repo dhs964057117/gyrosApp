@@ -77,8 +77,8 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Connect Device'),
-        content: Text(
-          'Do you want to connect to ${result.device.platformName.isEmpty ? 'this device' : result.device.platformName}?',
+        content: const Text(
+          'Do you want to connect to Carmtek?',
         ),
         actions: [
           TextButton(
@@ -110,9 +110,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
       if (mounted) {
         setState(() {
           _isConnected = true;
-          _connectedDeviceName = result.device.platformName.isEmpty
-              ? 'Unknown'
-              : result.device.platformName;
+          _connectedDeviceName = 'Carmtek';
         });
         Navigator.pop(context); // Close loading dialog
       }
@@ -177,19 +175,24 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
                 itemBuilder: (context, index) {
                   final result = bleService.scanResults[index];
                   final device = result.device;
-                  String name = device.platformName;
-                  if (name.isEmpty) {
-                    name = result.advertisementData.localName;
+                  // Extract device name dynamically first
+                  String rawName = device.platformName;
+                  if (rawName.isEmpty) {
+                    rawName = result.advertisementData.localName;
                   }
 
                   // Filter as per original app
-                  final lowerName = name.toLowerCase();
+                  final lowerName = rawName.toLowerCase();
                   if (!lowerName.contains('gyro') &&
                       !lowerName.contains('carmtek')) {
-                    if (lowerName.isEmpty)
+                    if (lowerName.isEmpty) {
                       return const SizedBox.shrink(); // Hide unknown if not matching
+                    }
                     return const SizedBox.shrink();
                   }
+
+                  // Force the display name to be 'Carmtek'
+                  String name = "Carmtek";
 
                   return Padding(
                     padding: const EdgeInsets.symmetric(
@@ -209,7 +212,7 @@ class _BluetoothScanScreenState extends State<BluetoothScanScreen> {
                             const SizedBox(width: 15),
                             Expanded(
                               child: Text(
-                                name.isEmpty ? 'Unknown' : name,
+                                name,
                                 style: const TextStyle(fontSize: 16),
                               ),
                             ),

@@ -70,7 +70,7 @@ class LevelingGauge extends StatelessWidget {
         double carRotationDegrees = fw * 0.4;
 
         // Determine background gauge image based on absolute height difference (not angle)
-        String levelerImage = _getLevelerImage(angle, nums.abs());
+        String levelerImage = _getLevelerImage(angle, nums.abs(), unit);
 
         // Responsive Column layout adapts gracefully to any height!
         return Column(
@@ -150,9 +150,12 @@ class LevelingGauge extends StatelessWidget {
     );
   }
 
-  String _getLevelerImage(double angle, double hAbs) {
-    if (hAbs <= 1.0) return 'assets/images/leveler3.webp';
-    if (hAbs > 1.0 && hAbs <= 3.0) {
+  String _getLevelerImage(double angle, double hAbs, int unit) {
+    double t1 = unit == 1 ? 2.5 : 1.0;
+    double t2 = unit == 1 ? 7.5 : 3.0;
+
+    if (hAbs <= t1) return 'assets/images/leveler3.webp';
+    if (hAbs > t1 && hAbs <= t2) {
       return angle > 0 ? 'assets/images/leveler4.webp' : 'assets/images/leveler2.webp';
     }
     return angle > 0 ? 'assets/images/leveler5.webp' : 'assets/images/leveler1.webp';

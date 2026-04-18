@@ -254,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     style: TextStyle(
                                       fontSize: 28,
                                       fontWeight: FontWeight.bold,
-                                      color: _getGaugeColor(hAbsVal),
+                                      color: _getGaugeColor(hAbsVal, storage.unit),
                                       fontFeatures: const [FontFeature.tabularFigures()],
                                     ),
                                     child: Text(
@@ -574,9 +574,11 @@ class _HomeScreenState extends State<HomeScreen>
     return "";
   }
 
-  Color _getGaugeColor(double hAbsVal) {
-    if (hAbsVal <= 1.0) return const Color(0xFF9CDA1E);
-    if (hAbsVal <= 3.0) return const Color(0xFFECDC05);
+  Color _getGaugeColor(double hAbsVal, int unit) {
+    double t1 = unit == 1 ? 2.5 : 1.0;
+    double t2 = unit == 1 ? 7.5 : 3.0;
+    if (hAbsVal <= t1) return const Color(0xFF9CDA1E);
+    if (hAbsVal <= t2) return const Color(0xFFECDC05);
     return const Color(0xFFFB2A37);
   }
 }
