@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:gyros_app/screens/privacy_policy_page.dart';
 import 'package:provider/provider.dart';
 import '../services/ble_service.dart';
 import '../services/storage_service.dart';
@@ -10,6 +11,7 @@ import '../widgets/temperature_indicator.dart';
 import '../widgets/leveling_gauge.dart';
 import 'package:torch_light/torch_light.dart';
 
+import 'contact_us_page.dart';
 import 'settings_screen.dart';
 import 'bluetooth_scan_screen.dart';
 import 'user_manual_screen.dart';
@@ -393,7 +395,13 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ),
           const SizedBox(height: 20),
-          _buildSidebarItem(Icons.email_outlined, 'Contact Us', () {}),
+          _buildSidebarItem(Icons.email_outlined, 'Contact Us', () {
+            _toggleDrawer();
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ContactUsPage()),
+            );
+          }),
           _buildSidebarItem(Icons.book_outlined, 'User Manual', () {
             _toggleDrawer();
             Navigator.push(
@@ -401,7 +409,13 @@ class _HomeScreenState extends State<HomeScreen>
               MaterialPageRoute(builder: (context) => const UserManualScreen()),
             );
           }),
-          _buildSidebarItem(Icons.policy_outlined, 'Privacy Policy', () {}),
+          _buildSidebarItem(Icons.policy_outlined, 'Privacy Policy', () {
+            _toggleDrawer();
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const PrivacyPolicyPage()),
+            );
+          }),
           _buildSidebarItem(Icons.refresh_outlined, 'Reset Device', () {
             _showResetDialog(ble, storage);
           }),

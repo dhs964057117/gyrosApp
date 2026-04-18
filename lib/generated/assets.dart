@@ -14,8 +14,18 @@ class $AssetsImagesGen {
   final $AssetsCenterGen center = const $AssetsCenterGen();
   final $AssetsDeviceGen device = const $AssetsDeviceGen();
   final $AssetsGuideGen guide = const $AssetsGuideGen();
-  final AssetGenImage appLogo = const AssetGenImage(
+  final AssetGenImage a13 = const AssetGenImage('assets/images/13.webp');
+  final AssetGenImage appLogoPng = const AssetGenImage(
+    'assets/images/app-logo.png',
+  );
+  final AssetGenImage appLogoWebp = const AssetGenImage(
     'assets/images/app-logo.webp',
+  );
+  final AssetGenImage appLogoOptimized = const AssetGenImage(
+    'assets/images/app-logo-optimized.png',
+  );
+  final AssetGenImage appLogoSquare = const AssetGenImage(
+    'assets/images/app-logo-square.png',
   );
   final AssetGenImage car1 = const AssetGenImage('assets/images/car1.webp');
   final AssetGenImage car1f = const AssetGenImage('assets/images/car1f.webp');
