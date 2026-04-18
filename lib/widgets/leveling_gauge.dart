@@ -42,8 +42,8 @@ class LevelingGauge extends StatelessWidget {
 
         // Determine which car image to use
         String carImage = viewMode == 1
-            ? 'assets/images/car${carType}h.webp'
-            : 'assets/images/car${carType}w.webp';
+            ? 'assets/images/car${carType}h.webp' // Side view
+            : 'assets/images/car${carType}w.webp'; // Back view
 
         // JS Logic for wheel rotation and image states
         double l = viewMode == 1 ? height : width;
@@ -52,69 +52,99 @@ class LevelingGauge extends StatelessWidget {
 
         // Clamp nums according to JS limits
         double limit = unit == 1 ? 12.5 : 5.0;
+        
+        // Calculate the rotational percentage
+        double magnitudeScale = nums.abs() / limit;
+        if (magnitudeScale > 1.0) magnitudeScale = 1.0;
+        double sign = nums < 0 ? -1.0 : 1.0;
+
+        // Pointer rotation scaled to visual arc limits (38 degrees sweeps the edge perfectly)
+        double pointerRotationDegrees = sign * (magnitudeScale * 38.0);
+
+        // Clamped nums values directly match original JS variables
         if (nums <= -limit) nums = -limit;
         if (nums >= limit) nums = limit;
 
-        // JS fw calculation
+        // Car layout rotation uses the actual fw value translation JS style
         double fw = unit == 1 ? (nums * 2.1) : (nums * 5.2);
+        double carRotationDegrees = fw * 0.4;
 
         // Determine background gauge image based on absolute height difference (not angle)
         String levelerImage = _getLevelerImage(angle, nums.abs());
 
-        // 使用固定的逻辑坐标系 (350 x 500)，然后使用 FittedBox 等比缩放整个 Stack。
-        // 彻底锁死圆弧、指针、小车之间的相对位置和大小关系，永不越界。
-        return FittedBox(
-          fit: BoxFit.contain, // 保证等比缩放并在容器内居中完整显示
-          child: SizedBox(
-            width: 350,  // 逻辑宽度
-            height: 500, // 逻辑高度
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Background Gauge (Leveler Arcs)
-                Positioned(
-                  top: 26, // 维持原有的固定位置逻辑
-                  child: Image.asset(
-                    levelerImage,
-                    width: 240, // 维持原有的固定大小
-                    gaplessPlayback: true,
-                  ),
-                ),
-                // 仪表的指针 - 独立出完美的几何旋转体系
-                Positioned(
-                  top: 35, // 略微上移，让旋转中心完美对准圆弧图像的几何圆心
-                  child: AnimatedRotation(
-                    turns: fw / 360.0, // Match JS: rotate: fw+'deg'
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeOut,
-                    child: Container(
-                      height: 360, // 设置精确的旋转直径(半径180)，这与圆弧的物理曲率100%吻合，无论怎么转都不会越界
-                      width: 20,
+        // Responsive Column layout adapts gracefully to any height!
+        return Column(
+          children: [
+            // Flexible Top Area: Gauge Module
+            Expanded(
+              flex: 3,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: FittedBox(
+                  fit: BoxFit.contain, // Allow the Gauge itself to securely scale
+                  child: SizedBox(
+                    width: 320,  // Logic width
+                    height: 180, // Logic height for the Arc box, keeps it tightly clipped visually
+                    child: Stack(
+                      clipBehavior: Clip.none, // Allow needle stick to safely bleed vertically
                       alignment: Alignment.topCenter,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 10.0), // 指针尖端向下压10像素，稳稳卡在彩色带中央
-                        child: CustomPaint(
-                          size: const Size(20, 20),
-                          painter: TrianglePainter(color: const Color(0xFF343434)),
+                      children: [
+                        // Background Gauge Arc
+                        Positioned(
+                          top: 26, 
+                          child: Image.asset(
+                            levelerImage,
+                            width: 240, 
+                            gaplessPlayback: true,
+                          ),
                         ),
-                      ),
+                        // The Needle System
+                        Positioned(
+                          top: 35, // Align rotational center strictly to arc geometric center
+                          child: AnimatedRotation(
+                            turns: pointerRotationDegrees / 360.0, 
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOut,
+                            child: Container(
+                              height: 360, // Rotational diameter
+                              width: 20,
+                              alignment: Alignment.topCenter,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 10.0), 
+                                child: CustomPaint(
+                                  size: const Size(20, 20),
+                                  painter: TrianglePainter(color: const Color(0xFF343434)),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                // 小车图片
-                AnimatedRotation(
-                  turns: (fw * 0.4) / 360.0, // Match JS: rotate: (fw*0.4)+'deg'
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOutBack,
+              ),
+            ),
+
+            // Flexible Bottom Area: Rotating Car Image
+            Expanded(
+              flex: 4,
+              child: AnimatedRotation(
+                turns: carRotationDegrees / 360.0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutBack,
+                child: FractionallySizedBox(
+                  widthFactor: 0.8, // 80% of width
                   child: Image.asset(
                     carImage,
-                    width: 280, // 相当于你原来的 availableWidth * 0.8 (350 * 0.8 = 280)
                     fit: BoxFit.contain,
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
+            // Bottom Padding to give space above Labels
+            const SizedBox(height: 20),
+          ],
         );
       },
     );
