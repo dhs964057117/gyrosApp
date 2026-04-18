@@ -201,68 +201,49 @@ class _HomeScreenState extends State<HomeScreen>
             : (_viewMode == 2 ? orientation.roll : 0);
 
         double lengthForMode = _viewMode == 1 ? storage.height : storage.width;
-        double hAbsVal = _viewMode == 3 ? 0.0 : orientation.calculateHighDifference(currentAngle, lengthForMode);
+        double hAbsVal = _viewMode == 3
+            ? 0.0
+            : orientation.calculateHighDifference(currentAngle, lengthForMode);
 
         return SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 20),
-                        // Battery and Temperature Row
-                        Container(
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF6A42E),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: BatteryIndicator(
-                                  level: orientation.batteryLevel,
-                                ),
-                              ),
-                              Expanded(
-                                child: TemperatureIndicator(
-                                  temp: orientation.temperatureCelsius,
-                                  unit: storage.tempUnit,
-                                ),
-                              ),
-                            ],
-                          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                // Battery and Temperature Row
+                Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF6A42E),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: BatteryIndicator(
+                          level: orientation.batteryLevel,
                         ),
-                        const SizedBox(height: 30),
-                        // Gauge Box
-                        Container(
-                          height: MediaQuery.of(context).size.height * 0.6,
-                          decoration: BoxDecoration(
-                            color: const Color(0x66DAD6DB),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Stack(
-                            children: [
-                              // High Difference Text
-                              Positioned(
-                                top: 110,
-                                left: 0,
-                                right: 0,
-                                child: Center(
-                                  child: AnimatedDefaultTextStyle(
-                                    duration: const Duration(milliseconds: 100),
-                                    curve: Curves.linear,
-                                    style: TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.bold,
-                                      color: _getGaugeColor(hAbsVal, storage.unit),
-                                      fontFeatures: const [FontFeature.tabularFigures()],
-                                    ),
-                                    child: Text(
-                                      _getDifferenceText(storage, _viewMode, hAbsVal),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                      ),
+                      Expanded(
+                        child: TemperatureIndicator(
+                          temp: orientation.temperatureCelsius,
+                          unit: storage.tempUnit,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 30),
+                // Gauge Box
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  decoration: BoxDecoration(
+                    color: const Color(0x66DAD6DB),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Stack(
+                    children: [
                       // Main LevelingGauge Animation
                       // 重点优化：整体向下偏移（top: 75），让指针正好1/3刺入圆弧，剩下2/3在圆弧下方
                       Positioned(
@@ -281,6 +262,29 @@ class _HomeScreenState extends State<HomeScreen>
                           unit: storage.unit,
                           wheelValues: wheelValues,
                           thresholds: thresholds,
+                        ),
+                      ),
+                      // High Difference Text
+                      Positioned(
+                        top: 110,
+                        left: 0,
+                        right: 0,
+                        child: Center(
+                          child: AnimatedDefaultTextStyle(
+                            duration: const Duration(milliseconds: 100),
+                            curve: Curves.linear,
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: _getGaugeColor(hAbsVal, storage.unit),
+                              fontFeatures: const [
+                                FontFeature.tabularFigures(),
+                              ],
+                            ),
+                            child: Text(
+                              _getDifferenceText(storage, _viewMode, hAbsVal),
+                            ),
+                          ),
                         ),
                       ),
                       // Labels
@@ -443,9 +447,11 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildDebugSidebarItem(IconData icon,
-      String title,
-      VoidCallback onTap,) {
+  Widget _buildDebugSidebarItem(
+    IconData icon,
+    String title,
+    VoidCallback onTap,
+  ) {
     if (kDebugMode) {
       return ListTile(
         leading: Padding(
@@ -470,33 +476,32 @@ class _HomeScreenState extends State<HomeScreen>
   void _showResetDialog(BleService ble, StorageService storage) {
     showDialog(
       context: context,
-      builder: (context) =>
-          AlertDialog(
-            title: const Text('Reset Device'),
-            content: const Text('Whether to reset the device data?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  _disconnect(ble, storage);
-                  storage.carType = 1;
-                  storage.unit = 1;
-                  storage.tempUnit = 1;
-                  storage.width = 266.7;
-                  storage.height = 300.2;
-                  storage.orientation = 1;
-                  storage.isFirstTime = true;
-                  Navigator.pop(context);
-                  _toggleDrawer();
-                  setState(() {});
-                },
-                child: const Text('Sure'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Reset Device'),
+        content: const Text('Whether to reset the device data?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
           ),
+          TextButton(
+            onPressed: () {
+              _disconnect(ble, storage);
+              storage.carType = 1;
+              storage.unit = 1;
+              storage.tempUnit = 1;
+              storage.width = 266.7;
+              storage.height = 300.2;
+              storage.orientation = 1;
+              storage.isFirstTime = true;
+              Navigator.pop(context);
+              _toggleDrawer();
+              setState(() {});
+            },
+            child: const Text('Sure'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -522,7 +527,7 @@ class _HomeScreenState extends State<HomeScreen>
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const BluetoothScanScreen()),
-          (route) => false,
+      (route) => false,
     );
   }
 
@@ -530,29 +535,28 @@ class _HomeScreenState extends State<HomeScreen>
     final bleService = Provider.of<BleService>(context, listen: false);
     showDialog(
       context: context,
-      builder: (context) =>
-          AlertDialog(
-            content: const Text(
-              'Please confirm whether the device is handling calibratable positions and click "Sure" to start the calibration?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  await bleService.writeValue([0x02]);
-                  if (!mounted) return;
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Calibration command sent')),
-                  );
-                },
-                child: const Text('Sure'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        content: const Text(
+          'Please confirm whether the device is handling calibratable positions and click "Sure" to start the calibration?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
           ),
+          TextButton(
+            onPressed: () async {
+              await bleService.writeValue([0x02]);
+              if (!mounted) return;
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Calibration command sent')),
+              );
+            },
+            child: const Text('Sure'),
+          ),
+        ],
+      ),
     );
   }
 

@@ -52,96 +52,117 @@ class LevelingGauge extends StatelessWidget {
 
         // Clamp nums according to JS limits
         double limit = unit == 1 ? 12.5 : 5.0;
-        
+
         // Calculate the rotational percentage
         double magnitudeScale = nums.abs() / limit;
         if (magnitudeScale > 1.0) magnitudeScale = 1.0;
         double sign = nums < 0 ? -1.0 : 1.0;
 
-        // Pointer rotation scaled to visual arc limits (38 degrees sweeps the edge perfectly)
-        double pointerRotationDegrees = sign * (magnitudeScale * 38.0);
-
         // Clamped nums values directly match original JS variables
         if (nums <= -limit) nums = -limit;
         if (nums >= limit) nums = limit;
 
-        // Car layout rotation uses the actual fw value translation JS style
-        double fw = unit == 1 ? (nums * 2.1) : (nums * 5.2);
+        // JS geometric fw rotation calculation (maximum ~26.25 degrees)
+        double fw = unit == 1 ? (nums * 5.8 / 2.5) : (nums * 5.8);
+
+        // Use EXACT pure fw as naturally configured by JS for the needle limits
+        double pointerRotationDegrees = fw;
+        // Car strictly derived from fw as well
         double carRotationDegrees = fw * 0.4;
 
         // Determine background gauge image based on absolute height difference (not angle)
         String levelerImage = _getLevelerImage(angle, nums.abs(), unit);
 
         // Responsive Column layout adapts gracefully to any height!
-        return Column(
+        return Stack(
           children: [
-            // Flexible Top Area: Gauge Module
-            Expanded(
-              flex: 3,
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: FittedBox(
-                  fit: BoxFit.contain, // Allow the Gauge itself to securely scale
-                  child: SizedBox(
-                    width: 320,  // Logic width
-                    height: 180, // Logic height for the Arc box, keeps it tightly clipped visually
-                    child: Stack(
-                      clipBehavior: Clip.none, // Allow needle stick to safely bleed vertically
-                      alignment: Alignment.topCenter,
-                      children: [
-                        // Background Gauge Arc
-                        Positioned(
-                          top: 26, 
-                          child: Image.asset(
-                            levelerImage,
-                            width: 240, 
-                            gaplessPlayback: true,
-                          ),
-                        ),
-                        // The Needle System
-                        Positioned(
-                          top: 35, // Align rotational center strictly to arc geometric center
-                          child: AnimatedRotation(
-                            turns: pointerRotationDegrees / 360.0, 
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeOut,
-                            child: Container(
-                              height: 360, // Rotational diameter
-                              width: 20,
-                              alignment: Alignment.topCenter,
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 10.0), 
-                                child: CustomPaint(
-                                  size: const Size(20, 20),
-                                  painter: TrianglePainter(color: const Color(0xFF343434)),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // Flexible Bottom Area: Rotating Car Image
-            Expanded(
-              flex: 4,
+            Center(
               child: AnimatedRotation(
                 turns: carRotationDegrees / 360.0,
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOutBack,
                 child: FractionallySizedBox(
                   widthFactor: 0.8, // 80% of width
-                  child: Image.asset(
-                    carImage,
-                    fit: BoxFit.contain,
-                  ),
+                  child: Image.asset(carImage, fit: BoxFit.contain),
                 ),
               ),
             ),
+            Column(
+              children: [
+                // Flexible Top Area: Gauge Module
+                Expanded(
+                  flex: 3,
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      // Allow the Gauge itself to securely scale
+                      child: SizedBox(
+                        width: 320,
+                        // Logic width
+                        height: 180,
+                        // Logic height for the Arc box, keeps it tightly clipped visually
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          // Allow needle stick to safely bleed vertically
+                          alignment: Alignment.topCenter,
+                          children: [
+                            // Background Gauge Arc
+                            Positioned(
+                              top: 24, // Original JS gauge static Y offset
+                              child: Image.asset(
+                                levelerImage,
+                                width: 240,
+                                gaplessPlayback: true,
+                              ),
+                            ),
+                            // The Needle System perfectly mimicking JS DOM constraints
+                            Positioned(
+                              top: 45,
+                              // Exact JS original tip offset Y (margin-top 32px + wrapped margins)
+                              child: AnimatedRotation(
+                                turns: pointerRotationDegrees / 360.0,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOut,
+                                child: Container(
+                                  height: 436,
+                                  // Diameter resolving strictly to JS radius 218px
+                                  width: 20,
+                                  alignment: Alignment.topCenter,
+                                  child: CustomPaint(
+                                    // Removed padding to lock geometric apex perfectly to local top=0
+                                    size: const Size(20, 20),
+                                    painter: TrianglePainter(
+                                      color: const Color(0xFF343434),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            // Flexible Bottom Area: Rotating Car Image (Safely Centered)
+            // Expanded(
+            //   flex: 4,
+            //   child: Center(
+            //     child: AnimatedRotation(
+            //       turns: carRotationDegrees / 360.0,
+            //       duration: const Duration(milliseconds: 300),
+            //       curve: Curves.easeOutBack,
+            //       child: FractionallySizedBox(
+            //         widthFactor: 0.8, // 80% of width
+            //         child: Image.asset(carImage, fit: BoxFit.contain),
+            //       ),
+            //     ),
+            //   ),
+            // ),
             // Bottom Padding to give space above Labels
             const SizedBox(height: 20),
           ],
@@ -156,9 +177,13 @@ class LevelingGauge extends StatelessWidget {
 
     if (hAbs <= t1) return 'assets/images/leveler3.webp';
     if (hAbs > t1 && hAbs <= t2) {
-      return angle > 0 ? 'assets/images/leveler4.webp' : 'assets/images/leveler2.webp';
+      return angle > 0
+          ? 'assets/images/leveler4.webp'
+          : 'assets/images/leveler2.webp';
     }
-    return angle > 0 ? 'assets/images/leveler5.webp' : 'assets/images/leveler1.webp';
+    return angle > 0
+        ? 'assets/images/leveler5.webp'
+        : 'assets/images/leveler1.webp';
   }
 
   Color _getColor(double val, String key) {
@@ -289,7 +314,7 @@ class _WheelValue extends StatelessWidget {
             duration: const Duration(milliseconds: 100),
             curve: Curves.linear,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: color,
               fontFeatures: const [FontFeature.tabularFigures()],
