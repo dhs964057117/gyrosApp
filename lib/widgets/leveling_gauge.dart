@@ -82,7 +82,7 @@ class LevelingGauge extends StatelessWidget {
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOutBack,
                 child: FractionallySizedBox(
-                  widthFactor: 0.8, // 80% of width
+                  widthFactor: 1.0, // 80% of width
                   child: Image.asset(carImage, fit: BoxFit.contain),
                 ),
               ),

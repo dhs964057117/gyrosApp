@@ -276,7 +276,7 @@ class _HomeScreenState extends State<HomeScreen>
                             duration: const Duration(milliseconds: 100),
                             curve: Curves.linear,
                             style: TextStyle(
-                              fontSize: 28,
+                              fontSize: 32,
                               fontWeight: FontWeight.bold,
                               color: _getGaugeColor(hAbsVal, storage.unit),
                               fontFeatures: const [
