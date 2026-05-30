@@ -70,8 +70,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
     storage.tempUnit = _tempUnit;
     storage.orientation = _orientation;
     storage.carType = _carType;
-    storage.width = double.tryParse(_widthController.text) ?? storage.width;
-    storage.height = double.tryParse(_heightController.text) ?? storage.height;
+
+    // 验证并限制宽度输入值
+    double width = double.tryParse(_widthController.text) ?? storage.width;
+    if (width < 0) {
+      width = 0;
+    } else if (width > 999) {
+      width = 800;
+    }
+    _widthController.text = width.toString();
+    storage.width = width;
+
+    // 验证并限制长度输入值
+    double height = double.tryParse(_heightController.text) ?? storage.height;
+    if (height < 0) {
+      height = 0;
+    } else if (height > 999) {
+      height = 800;
+    }
+    _heightController.text = height.toString();
+    storage.height = height;
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Saved successfully'), duration: Duration(seconds: 2)),

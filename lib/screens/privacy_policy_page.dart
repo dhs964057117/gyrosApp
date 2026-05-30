@@ -40,21 +40,11 @@ class PrivacyPolicyPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // H1
-            const Center(
-              child: Text(
-                'upload this to Privacy Policy',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 20),
-            
             // H3
             const Center(
               child: Text(
                 'Privacy Policy',
-                style: headingStyle,
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
             ),

@@ -28,10 +28,10 @@ class StorageService {
   int get tempUnit => _prefs.getInt(keyTempUnit) ?? 1;
   set tempUnit(int value) => _prefs.setInt(keyTempUnit, value);
 
-  double get width => _prefs.getDouble(keyWidth) ?? 266.7;
+  double get width => _prefs.getDouble(keyWidth) ?? 300.0;
   set width(double value) => _prefs.setDouble(keyWidth, value);
 
-  double get height => _prefs.getDouble(keyHeight) ?? 300.2;
+  double get height => _prefs.getDouble(keyHeight) ?? 800.0;
   set height(double value) => _prefs.setDouble(keyHeight, value);
 
   int get orientation => _prefs.getInt(keyOrientation) ?? 1;
