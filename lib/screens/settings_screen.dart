@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/storage_service.dart';
+import '../services/ble_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -113,46 +114,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _onSetLevelPressed() {
+    final bleService = Provider.of<BleService>(context, listen: false);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         content: const Text(
-          'Is it confirmed that the tire spacing of the recreational vehicle needs to be revised again?',
+          'Please confirm whether the device is handling calibratable positions and click "Sure" to start the calibration?',
           style: TextStyle(fontSize: 16),
         ),
         contentPadding: const EdgeInsets.all(20),
         actionsPadding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
         actions: [
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white, // 白色字体蓝色背景
-                    elevation: 0,
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _scrollToTrailerWidth();
-                  },
-                  child: const Text('Sure'),
-                ),
-              ),
-              const SizedBox(width: 15),
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white, // 白色背景
-                    foregroundColor: Colors.black, // 黑色字体
-                    side: const BorderSide(color: Color(0xFFCCCCCC)),
-                    elevation: 0,
-                  ),
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
-                ),
-              ),
-            ],
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await bleService.writeValue([0x02]);
+              if (!mounted) return;
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Calibration command sent')),
+              );
+            },
+            child: const Text('Sure'),
           ),
         ],
       ),
