@@ -22,7 +22,7 @@ class StorageService {
   int get carType => _prefs.getInt(keyCarType) ?? 1;
   set carType(int value) => _prefs.setInt(keyCarType, value);
 
-  int get unit => _prefs.getInt(keyUnit) ?? 1;
+  int get unit => _prefs.getInt(keyUnit) ?? 2;
   set unit(int value) => _prefs.setInt(keyUnit, value);
 
   int get tempUnit => _prefs.getInt(keyTempUnit) ?? 1;

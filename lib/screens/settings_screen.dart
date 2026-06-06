@@ -50,15 +50,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
     double currentWidth = double.tryParse(_widthController.text) ?? 0.0;
     double currentHeight = double.tryParse(_heightController.text) ?? 0.0;
 
+    double newWidth = currentWidth;
+    double newHeight = currentHeight;
+
     if (newUnit == 2 && _unit == 1) {
       // cm -> inch (除以 2.54)
-      _widthController.text = (currentWidth / 2.54).toStringAsFixed(1);
-      _heightController.text = (currentHeight / 2.54).toStringAsFixed(1);
+      newWidth = currentWidth / 2.54;
+      newHeight = currentHeight / 2.54;
     } else if (newUnit == 1 && _unit == 2) {
       // inch -> cm (乘以 2.54)
-      _widthController.text = (currentWidth * 2.54).toStringAsFixed(1);
-      _heightController.text = (currentHeight * 2.54).toStringAsFixed(1);
+      newWidth = currentWidth * 2.54;
+      newHeight = currentHeight * 2.54;
     }
+
+    double maxVal = newUnit == 2 ? 999.0 : 2537.46;
+    if (newWidth < 0) {
+      newWidth = 0.0;
+    } else if (newWidth > maxVal) {
+      newWidth = maxVal;
+    }
+
+    if (newHeight < 0) {
+      newHeight = 0.0;
+    } else if (newHeight > maxVal) {
+      newHeight = maxVal;
+    }
+
+    _widthController.text = newUnit == 1 ? newWidth.toStringAsFixed(2) : newWidth.toStringAsFixed(1);
+    _heightController.text = newUnit == 1 ? newHeight.toStringAsFixed(2) : newHeight.toStringAsFixed(1);
 
     setState(() {
       _unit = newUnit;
@@ -74,22 +93,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     // 验证并限制宽度输入值
     double width = double.tryParse(_widthController.text) ?? storage.width;
+    double maxWidth = _unit == 2 ? 999.0 : 2537.46;
     if (width < 0) {
       width = 0;
-    } else if (width > 999) {
-      width = 800;
+    } else if (width > maxWidth) {
+      width = maxWidth;
     }
-    _widthController.text = width.toString();
+    _widthController.text = _unit == 1 ? width.toStringAsFixed(2) : width.toStringAsFixed(1);
     storage.width = width;
 
     // 验证并限制长度输入值
     double height = double.tryParse(_heightController.text) ?? storage.height;
+    double maxHeight = _unit == 2 ? 999.0 : 2537.46;
     if (height < 0) {
       height = 0;
-    } else if (height > 999) {
-      height = 800;
+    } else if (height > maxHeight) {
+      height = maxHeight;
     }
-    _heightController.text = height.toString();
+    _heightController.text = _unit == 1 ? height.toStringAsFixed(2) : height.toStringAsFixed(1);
     storage.height = height;
 
     ScaffoldMessenger.of(context).showSnackBar(

@@ -21,9 +21,9 @@ class LevelingGauge extends StatelessWidget {
     required this.viewMode,
     this.pitch = 0,
     this.roll = 0,
-    this.width = 266.7,
-    this.height = 300.2,
-    this.unit = 1,
+    this.width = 300.0,
+    this.height = 800.0,
+    this.unit = 2,
     this.wheelValues = const {},
     this.thresholds = const {},
   });

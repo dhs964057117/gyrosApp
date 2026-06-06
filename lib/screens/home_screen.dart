@@ -502,10 +502,10 @@ class _HomeScreenState extends State<HomeScreen>
             onPressed: () {
               _disconnect(ble, storage);
               storage.carType = 1;
-              storage.unit = 1;
+              storage.unit = 2;
               storage.tempUnit = 1;
-              storage.width = 266.7;
-              storage.height = 300.2;
+              storage.width = 300.0;
+              storage.height = 800.0;
               storage.orientation = 1;
               storage.isFirstTime = true;
               Navigator.pop(context);
