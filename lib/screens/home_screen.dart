@@ -576,7 +576,10 @@ class _HomeScreenState extends State<HomeScreen>
 
   String _getDifferenceText(StorageService storage, int mode, double hAbs) {
     if (mode == 3) return "";
-    String unitStr = storage.unit == 1 ? ' cm' : '"';
+    String unitStr = storage.unit == 1 ? ' cm' : ' "';
+    if (hAbs == 0) {
+      return "${hAbs.toStringAsFixed(0)}$unitStr";
+    }
     return "${hAbs.toStringAsFixed(2)}$unitStr";
   }
 
