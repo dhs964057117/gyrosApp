@@ -405,7 +405,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Trailer Width',
             child: Column(
               children: [
-                Image.asset('assets/images/car4w.webp', height: 150),
+                SizedBox(
+                  height: 190,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Positioned(
+                        top: -10,
+                        left: 0,
+                        right: 0,
+                        child: Image.asset('assets/images/car4w.webp', height: 190),
+                      ),
+                      Positioned(
+                        top: 170,
+                        left: 0,
+                        right: 0,
+                        child: Center(
+                          child: Container(
+                            width: 100,
+                            height: 2,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 150,
+                        left: 118,
+                        child: CustomPaint(
+                          size: const Size(1, 20),
+                          painter: _DashedLinePainter(isLeft: true),
+                        ),
+                      ),
+                      Positioned(
+                        top: 150,
+                        right: 118,
+                        child: CustomPaint(
+                          size: const Size(1, 20),
+                          painter: _DashedLinePainter(isLeft: false),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 const Text('Measure the width on the outside of each tire', style: TextStyle(fontSize: 16)),
                 const SizedBox(height: 10),
                 Row(
@@ -447,7 +488,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
           title: 'Trailer Length',
           child: Column(
             children: [
-              Image.asset('assets/images/car4h.webp', height: 150),
+                SizedBox(
+                  height: 190,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Positioned(
+                        top: -20,
+                        left: 0,
+                        right: 0,
+                        child: Image.asset('assets/images/car4h.webp', height: 190),
+                      ),
+                      Positioned(
+                        top: 180,
+                        left: 118,
+                        right: 46,
+                        child: Container(
+                          height: 2,
+                          color: Colors.red,
+                        ),
+                      ),
+                      Positioned(
+                        top: 140,
+                        left: 118,
+                        child: CustomPaint(
+                          size: const Size(1, 40),
+                          painter: _DashedLinePainter(isLeft: true),
+                        ),
+                      ),
+                      Positioned(
+                        top: 114,
+                        right: 46,
+                        child: CustomPaint(
+                          size: const Size(1, 66),
+                          painter: _DashedLinePainter(isLeft: false),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               const Text('Measure the distance from the center of the rear wheel to the jack point, or to the center pf the front wheel if it is a drivable RV', style: TextStyle(fontSize: 16)),
               const SizedBox(height: 10),
               Row(
@@ -634,4 +713,29 @@ class _CarModeRow extends StatelessWidget {
       ),
     );
   }
+}
+
+class _DashedLinePainter extends CustomPainter {
+  final bool isLeft;
+  _DashedLinePainter({required this.isLeft});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+
+    final double dashLength = 4;
+    final double gapLength = 4;
+    final double height = size.height;
+
+    for (double y = 0; y < height; y += dashLength + gapLength) {
+      final double endY = (y + dashLength).clamp(0.0, height);
+      canvas.drawLine(Offset(0, y), Offset(0, endY), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
