@@ -11,7 +11,7 @@ class TemperatureIndicator extends StatelessWidget {
     double displayTemp = unit == 1 ? temp : (temp * 1.8 + 32);
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Text(
           "${displayTemp.toStringAsFixed(1)}$unitStr",
@@ -19,6 +19,7 @@ class TemperatureIndicator extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         Image.asset('assets/images/center/wenduji.webp', height: 26),
+        const SizedBox(width: 8)
       ],
     );
   }

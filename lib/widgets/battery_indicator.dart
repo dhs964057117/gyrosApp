@@ -7,8 +7,9 @@ class BatteryIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
+        const SizedBox(width: 12),
         Image.asset(_getBatteryImage(level), height: 26),
         const SizedBox(width: 8),
         Text(

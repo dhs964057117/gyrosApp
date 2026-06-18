@@ -581,14 +581,14 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   String _getLabelLeft(int mode) {
-    if (mode == 1) return "REAR";
-    if (mode == 2) return "LEFT";
+    if (mode == 1) return "Rear";
+    if (mode == 2) return "Left";
     return "";
   }
 
   String _getLabelRight(int mode) {
-    if (mode == 1) return "FRONT";
-    if (mode == 2) return "RIGHT";
+    if (mode == 1) return "Front";
+    if (mode == 2) return "Right";
     return "";
   }
 
