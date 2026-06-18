@@ -316,13 +316,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
         _buildSection(
-          title: 'Set Level',
+          title: '',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Level your RV using your traditional leveling method.', style: TextStyle(fontSize: 12)),
+              const Text('Level your RV using your traditional leveling method.', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
-              const Text('If your vehicle has power slideout rooms, the vehicle should be leveled with the slides out.', style: TextStyle(fontSize: 12)),
+              const Text('If your vehicle has power slideout rooms, the vehicle should be leveled with the slides out.', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              const Text('Once your RV is level, press the "Set Level" button below.', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
               const SizedBox(height: 20),
               Center(
                 child: ElevatedButton(
@@ -498,8 +500,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
+          // Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          // const SizedBox(height: 10),
           child,
         ],
       ),
@@ -577,9 +579,9 @@ class _OrientationButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget content = Text(text, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold));
+    Widget content = Text(text, textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold));
     if (isVertical) {
-      content = RotatedBox(quarterTurns: 1, child: content);
+      content = RotatedBox(quarterTurns: 3, child: content);
     }
 
     return InkWell(

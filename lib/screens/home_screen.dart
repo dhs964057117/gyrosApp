@@ -321,7 +321,7 @@ class _HomeScreenState extends State<HomeScreen>
                 const SizedBox(height: 20),
                 // Control Buttons
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 0.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -650,7 +650,7 @@ class _ViewModeButton extends StatelessWidget {
           text,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 10,
+            fontSize: 14,
             fontWeight: FontWeight.bold,
             color: isActive ? Colors.white : const Color(0xFF292525),
           ),
