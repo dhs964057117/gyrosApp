@@ -42,7 +42,13 @@ class $AssetsImagesGen {
   final AssetGenImage car4 = const AssetGenImage('assets/images/car4.webp');
   final AssetGenImage car4f = const AssetGenImage('assets/images/car4f.webp');
   final AssetGenImage car4h = const AssetGenImage('assets/images/car4h.webp');
+  final AssetGenImage car4hGuid = const AssetGenImage(
+    'assets/images/car4h_guid.webp',
+  );
   final AssetGenImage car4w = const AssetGenImage('assets/images/car4w.webp');
+  final AssetGenImage car4wGuid = const AssetGenImage(
+    'assets/images/car4w_guid.webp',
+  );
   final AssetGenImage car5 = const AssetGenImage('assets/images/car5.webp');
   final AssetGenImage car5f = const AssetGenImage('assets/images/car5f.webp');
   final AssetGenImage car5h = const AssetGenImage('assets/images/car5h.webp');
