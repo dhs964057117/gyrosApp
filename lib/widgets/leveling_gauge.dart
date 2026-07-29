@@ -79,7 +79,7 @@ class LevelingGauge extends StatelessWidget {
             Center(
               child: AnimatedRotation(
                 turns: carRotationDegrees / 360.0,
-                duration: const Duration(milliseconds: 300),
+                duration: const Duration(milliseconds: 120),
                 curve: Curves.easeOutBack,
                 child: FractionallySizedBox(
                   widthFactor: carType == 2 ? 1.0 : 1.2, // 80% of width
@@ -122,7 +122,7 @@ class LevelingGauge extends StatelessWidget {
                               // Exact JS original tip offset Y (margin-top 32px + wrapped margins)
                               child: AnimatedRotation(
                                 turns: pointerRotationDegrees / 360.0,
-                                duration: const Duration(milliseconds: 300),
+                                duration: const Duration(milliseconds: 120),
                                 curve: Curves.easeOut,
                                 child: Container(
                                   height: 436,

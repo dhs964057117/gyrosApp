@@ -1,12 +1,34 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 
 class OrientationModel extends ChangeNotifier {
+  // --- Smoothing configuration ---
+  /// How often the displayed value is re-integrated toward the raw target.
+  static const Duration _tickInterval = Duration(milliseconds: 33);
+
+  /// Exponential smoothing time constant in seconds.
+  /// Larger = smoother but slower to reach the real value.
+  static const double _tauSeconds = 0.3;
+
+  /// Once the displayed value is within this many degrees of its target it
+  /// snaps exactly to the target and the ticker goes idle.
+  static const double _settleEpsilon = 0.004;
+
+  // Raw, unfiltered sensor values in degrees (targets for the smoothing).
+  double _rawPitch = 0; // Front-to-back
+  double _rawRoll = 0;  // Side-to-side
+
+  // Smoothed values that the UI actually consumes.
   double _pitch = 0; // Front-to-back
   double _roll = 0;  // Side-to-side
   int _batteryLevel = 0;
   double _temperatureCelsius = 0;
   String _calibStatus = '01'; // '00': Uncalibrated, '01': Calibrating, '02'+: Ready
+
+  bool _hasFirstValue = false;
+  Timer? _smoothTimer;
+  DateTime _lastTickTime = DateTime.now();
 
   double get pitch => _pitch;
   double get roll => _roll;
@@ -44,8 +66,20 @@ class OrientationModel extends ChangeNotifier {
 
     // In the original JS, the raw angle value is used for text display WITHOUT clamping.
     // Clamping only happens for the visual gauge rotation logic.
-    _pitch = zuoyouzhi;
-    _roll = shangxiazhi;
+    //
+    // The raw values are only stored as targets. The smoothed _pitch/_roll
+    // ramp progressively toward them so noisy BLE packets (possibly amplified
+    // by the configured length/width) never cause visible jumps.
+    _rawPitch = zuoyouzhi;
+    _rawRoll = shangxiazhi;
+
+    if (!_hasFirstValue) {
+      // Show the very first reading immediately instead of sweeping from 0.
+      _hasFirstValue = true;
+      _pitch = _rawPitch;
+      _roll = _rawRoll;
+    }
+    _ensureSmoothing();
 
     // Calibration status (hex characters 8-10)
     if (hex.length >= 10) {
@@ -75,6 +109,58 @@ class OrientationModel extends ChangeNotifier {
       val -= 65536;
     }
     return val;
+  }
+
+  /// Starts the smoothing ticker if it is not already running.
+  void _ensureSmoothing() {
+    if (_smoothTimer?.isActive == true) return;
+    _lastTickTime = DateTime.now();
+    _smoothTimer = Timer.periodic(_tickInterval, _onSmoothTick);
+  }
+
+  /// Moves the displayed values one step closer to the latest raw targets
+  /// using a time-based exponential moving average, so the numbers and the
+  /// needle increase/decrease gradually instead of jumping between packets.
+  void _onSmoothTick(Timer timer) {
+    final DateTime now = DateTime.now();
+    double dt = now.difference(_lastTickTime).inMicroseconds / 1e6;
+    _lastTickTime = now;
+    // Clamp so a long pause cannot turn into one huge leap.
+    dt = dt.clamp(0.001, 0.1);
+
+    final double alpha = 1 - exp(-dt / _tauSeconds);
+
+    double nextPitch = _pitch + (_rawPitch - _pitch) * alpha;
+    double nextRoll = _roll + (_rawRoll - _roll) * alpha;
+
+    bool settled = true;
+    if ((nextPitch - _rawPitch).abs() <= _settleEpsilon) {
+      nextPitch = _rawPitch;
+    } else {
+      settled = false;
+    }
+    if ((nextRoll - _rawRoll).abs() <= _settleEpsilon) {
+      nextRoll = _rawRoll;
+    } else {
+      settled = false;
+    }
+
+    if (nextPitch != _pitch || nextRoll != _roll) {
+      _pitch = nextPitch;
+      _roll = nextRoll;
+      notifyListeners();
+    }
+
+    if (settled) {
+      // Both axes reached their targets: stop ticking until the next packet.
+      timer.cancel();
+    }
+  }
+
+  @override
+  void dispose() {
+    _smoothTimer?.cancel();
+    super.dispose();
   }
 
   double calculateHighDifference(double angle, double l) {
