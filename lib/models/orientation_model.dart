@@ -9,7 +9,7 @@ class OrientationModel extends ChangeNotifier {
 
   /// Exponential smoothing time constant in seconds.
   /// Larger = smoother but slower to reach the real value.
-  static const double _tauSeconds = 0.3;
+  static const double _tauSeconds = 0.6;
 
   /// Once the displayed value is within this many degrees of its target it
   /// snaps exactly to the target and the ticker goes idle.
