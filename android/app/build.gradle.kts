@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -5,8 +7,17 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Load signing settings from android/key.properties (UTF-8, so the key alias
+// may contain non-ASCII characters). The keystore password and key password
+// are left blank there for the developer to fill in.
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.reader(Charsets.UTF_8).use { keystoreProperties.load(it) }
+}
+
 android {
-    namespace = "com.gyros.app.gyros_app"
+    namespace = "com.a379852117.xyz"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,19 +31,30 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.gyros.app.gyros_app"
+        applicationId = "com.a379852117.xyz"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        versionCode = 19
+        versionName = "0.0.19"
 
         ndk {
+
             // Keep only common ARM architectures to save package size.
             // Exclude x86/x86_64 which are rarely needed on physical mobile devices.
             abiFilters += listOf("armeabi-v7a", "arm64-v8a")
+        }
+    }
+
+    signingConfigs {
+        create("release") {
+            keyAlias = keystoreProperties.getProperty("keyAlias", "")
+            keyPassword = keystoreProperties.getProperty("keyPassword", "")
+            storeFile = keystoreProperties.getProperty("storeFile")
+                ?.takeIf { it.isNotBlank() }
+                ?.let { file(it) }
+            storePassword = keystoreProperties.getProperty("storePassword", "")
         }
     }
 
@@ -48,9 +70,7 @@ android {
                 "proguard-rules.pro"
             )
 
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }
