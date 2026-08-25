@@ -118,6 +118,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  void _reset() {
+    final storage = Provider.of<StorageService>(context, listen: false);
+    storage.resetSettings();
+
+    setState(() {
+      _unit = StorageService.defaultUnit;
+      _tempUnit = StorageService.defaultTempUnit;
+      _orientation = StorageService.defaultOrientation;
+      _carType = StorageService.defaultCarType;
+      _widthController.text = StorageService.defaultUnit == 1
+          ? StorageService.defaultWidth.toStringAsFixed(2)
+          : StorageService.defaultWidth.toStringAsFixed(1);
+      _heightController.text = StorageService.defaultUnit == 1
+          ? StorageService.defaultHeight.toStringAsFixed(2)
+          : StorageService.defaultHeight.toStringAsFixed(1);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Reset to default settings'), duration: Duration(seconds: 2)),
+    );
+  }
+
   void _scrollToTrailerWidth() async {
     // 如果当前不在 RV Setup 选项卡，先切换
     if (_activeTab != 2) {
@@ -251,7 +273,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: _reset,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFFDC8F09),
                       side: const BorderSide(color: Color(0xFFC5B7A5)),
