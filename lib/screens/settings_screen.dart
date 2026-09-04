@@ -119,24 +119,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _reset() {
-    final storage = Provider.of<StorageService>(context, listen: false);
-    storage.resetSettings();
+    final String message = _activeTab == 1
+        ? 'Reset the installation direction?'
+        : 'Reset the vehicle model selection and dimensions?';
 
-    setState(() {
-      _unit = StorageService.defaultUnit;
-      _tempUnit = StorageService.defaultTempUnit;
-      _orientation = StorageService.defaultOrientation;
-      _carType = StorageService.defaultCarType;
-      _widthController.text = StorageService.defaultUnit == 1
-          ? StorageService.defaultWidth.toStringAsFixed(2)
-          : StorageService.defaultWidth.toStringAsFixed(1);
-      _heightController.text = StorageService.defaultUnit == 1
-          ? StorageService.defaultHeight.toStringAsFixed(2)
-          : StorageService.defaultHeight.toStringAsFixed(1);
-    });
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: Text(
+          message,
+          style: const TextStyle(fontSize: 16),
+        ),
+        contentPadding: const EdgeInsets.all(20),
+        actionsPadding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              final storage = Provider.of<StorageService>(context, listen: false);
+              storage.resetSettings();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Reset to default settings'), duration: Duration(seconds: 2)),
+              setState(() {
+                _unit = StorageService.defaultUnit;
+                _tempUnit = StorageService.defaultTempUnit;
+                _orientation = StorageService.defaultOrientation;
+                _carType = StorageService.defaultCarType;
+                _widthController.text = StorageService.defaultUnit == 1
+                    ? StorageService.defaultWidth.toStringAsFixed(2)
+                    : StorageService.defaultWidth.toStringAsFixed(1);
+                _heightController.text = StorageService.defaultUnit == 1
+                    ? StorageService.defaultHeight.toStringAsFixed(2)
+                    : StorageService.defaultHeight.toStringAsFixed(1);
+              });
+
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Reset successfully'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+            child: const Text('Sure'),
+          ),
+        ],
+      ),
     );
   }
 
