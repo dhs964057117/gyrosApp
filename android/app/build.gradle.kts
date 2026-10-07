@@ -31,7 +31,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.a379852117.xyz"
+        applicationId = "com.carmtek.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -77,9 +77,4 @@ android {
 
 flutter {
     source = "../.."
-}
-
-dependencies {
-    // 其他依赖...
-    implementation("com.google.android.play:core:1.10.3")   // 或更高版本
 }
